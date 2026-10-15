@@ -32,4 +32,6 @@ python3 -m unittest discover -s tests -v
 
 Without a compatible `websockets` package, the same command runs the core checks and skips queue-connection tests. Queue tests use a disposable local Unix WebSocket server. Checks do not contact GitHub or a real agent session, publish messages, or modify another project. Live delivery and host completion on another machine still need an actual trial.
 
+The `test_regression_*` suites retain 36 inbox, CI-observer and record/command scenarios from the Gallery adoption of the Buffin workflow. They run against this package's scripts, using disposable directories and controlled CLI peers. Queue connection coverage uses this package's Python transport tests; the former Node bridge is not a dependency.
+
 The [destination host acceptance checklist](references/host-acceptance.md) is prepared for that later trial and remains unexecuted. It covers fresh discovery, compaction/resume, participant handoffs, idle completion, interruption and resource closeout. Local tests and this documentation do not claim those host scenarios passed.
