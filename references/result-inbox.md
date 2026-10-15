@@ -6,8 +6,10 @@ The inbox is a durable ledger of results and their dispositions. How a waiting c
 
 | Transport | Coordinator host | Wakeup |
 |---|---|---|
-| `harness` (default) | A host with its own completion path, such as [Claude Code](hosts/claude-code.md) | The inbox sends nothing. Completion notices, when supported, come from the host. Otherwise consume results on explicit resumption. |
-| `codex-queue` (explicit opt-in) | [Codex and Paseo](hosts/codex-paseo.md) with a verified compatible local queue | The first result after `wait` queues one pointer to the coordinator's Codex thread; later results share it. |
+| `codex-queue` (default) | [Codex and Paseo](hosts/codex-paseo.md) with a compatible local queue | The first result after `wait` queues one pointer to the coordinator's Codex thread; later results share it. |
+| `harness` (explicit) | A host with its own completion path, such as [Claude Code](hosts/claude-code.md) | The inbox sends nothing. Completion notices come from the host; a result from an unrelated process waits for the next callback or explicit resumption. |
+
+Codex/Paseo inboxes use `codex-queue`; `harness` is not a substitute for an unavailable Codex queue. Built-in Codex subagents use their native hand-back and the in-turn waiting path described in the host reference instead of this inbox.
 
 ## Register once
 
@@ -15,10 +17,10 @@ When the task uses an inbox, register one per task and put its absolute path in 
 
 ```text
 python3 <skill>/scripts/task_inbox.py --mailbox <task-dir>/inbox init
-  --task <task-id> --transport harness
+  --task <task-id> (--thread <coordinator-native-uuid> | --transport harness)
 ```
 
-For queue wakeups, pass `--transport codex-queue --thread <coordinator-native-uuid>` instead. The host reference gives the prerequisites. An existing inbox is inspected, never reinitialized. The scripts require Python 3 on Linux, macOS or WSL (`fcntl`); native Windows support is not implemented. Keep inboxes local to the task; their absolute paths and host bindings are not a portable installation artifact.
+The default queue transport requires the coordinator's native Codex thread UUID; `--transport codex-queue` may also be stated explicitly. Claude uses `--transport harness` and omits `--thread`. The host reference gives the prerequisites. An existing inbox is inspected, never reinitialized. The scripts require Python 3 on Linux, macOS or WSL (`fcntl`); native Windows support is not implemented. Keep inboxes local to the task; their absolute paths and host bindings are not a portable installation artifact.
 
 ## Publish every result; do not queue every result
 

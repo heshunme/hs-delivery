@@ -28,7 +28,7 @@
 
 ## Python capabilities
 
-- Selected mode: `<Markdown only, core helpers, or optional codex-queue>`.
+- Selected mode: `<Markdown only, core helpers, or codex-queue>`.
 - Interpreter: `<absolute executable and Python version, or not needed>`.
 - Environment ownership: `<existing/reused or setup-created absolute environment; package tool if used>`.
 - Probe results: `<OS/fcntl, selected helpers and tested time; missing capabilities stay explicit>`.

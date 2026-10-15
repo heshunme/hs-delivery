@@ -42,7 +42,7 @@ Continue an existing task record. When work spans stages or sessions and has no 
 
 Follow [task records](references/task-record.md): a short current card at the top, then append-only history and links. Replace the card through `scripts/task_card.py`; contributors write their own immutable results. Keep original failures and add fix/retest evidence with its actual version.
 
-Use native result hand-backs when they carry the completed round. Add a [task inbox](references/result-inbox.md) when a publisher outlives its hand-back or the host needs a durable queue result. `harness` is the default transport and sends no messages; queue wakeups require explicit compatible-host setup. Verify artifact hashes and versions, reconcile results in batches, and record a disposition for each result actually handled.
+Collect results through the coordinator host's result path. Paseo-managed Codex participants publish to the [task inbox](references/result-inbox.md), whose default `codex-queue` transport wakes a waiting coordinator: active work accumulates results without queued turns; take and reconcile them at useful boundaries, then arm waiting before ending a turn. Claude and built-in Codex subagents return through their native hand-back; add an inbox only for publishers that outlive that hand-back, following the host reference. Claude uses `--transport harness` explicitly for that inbox. Verify artifact hashes and versions, reconcile results in batches, and record a disposition for each result actually handled.
 
 Report material findings, decisions, progress and blockers. Empty callbacks need no user-facing acknowledgment. If a maintainer decision remains, state its options, recommendation, what it blocks and a concise reply format in the current message. Routine choices within accepted scope remain with the responsible owner.
 
@@ -66,9 +66,11 @@ Before publication, inspect changed comments, test names and documentation for a
 
 ## Wait through the host's supported completion path
 
-For an otherwise idle CI wait, read [CI continuation](references/ci-watcher.md). Choose a verified native completion path or an optional finite observer. An observer records a result; the coordinator reconciles current candidate and checks after notification. Observers never approve, merge, publish or deploy.
+For an otherwise idle CI wait, read [CI continuation](references/ci-watcher.md) and use the host's completion path: the finite observer for Codex/Paseo, or native background completion where supported. Record the pending gate and continuation owner before ending a waiting turn; this is not delivery completion. Observers never approve, merge, publish or deploy.
 
 When an inbox is used, `take` and reconcile results, then `wait` before ending an idle turn. If it reports a ready batch, process it first. Do not replace missing completion support with model sleep/status loops or promise wakeups the host cannot provide. Record a responsible next action when explicit resumption is needed.
+
+The same applies to any wait longer than a few minutes. On a host without completion callbacks, run coordinator-owned long local commands through `watch_cmd.py` and guard each expected inbox result with `watch_result.py`, following the [Codex host reference](references/hosts/codex-paseo.md#finite-observers). These observers carry monitoring outside the model. Check once that the installed commands and flags work, and retain stderr and exit status. A participant's own commands remain in its assigned turn and checkout.
 
 ## Reconcile the endpoint
 

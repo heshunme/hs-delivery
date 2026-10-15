@@ -37,15 +37,15 @@ class WorkflowTests(unittest.TestCase):
         )
 
     def inbox(self):
-        return task_inbox.initialize(self.mailbox, 'fixture')
+        return task_inbox.initialize(self.mailbox, 'fixture', transport='harness')
 
-    def publish(self, identity='review.r1', text='Reviewed candidate A'):
+    def publish(self, identity='review.r1', text='Reviewed candidate A', thread=None):
         artifact = self.task / f'{identity}.md'
         artifact.write_text(text)
         receipt = deliver(
             task='fixture', delivery_id=identity, sender='reviewer', artifact=artifact,
             version='candidate-A', summary='review complete', outbox=self.task / 'outbox',
-            mailbox=self.mailbox,
+            mailbox=self.mailbox, thread=thread,
         )
         return artifact, receipt
 
@@ -116,7 +116,49 @@ class WorkflowTests(unittest.TestCase):
                 self.assertFalse(log.exists())
                 self.assertFalse((state / 'ready.json').exists())
 
-    def test_default_inbox_and_waiting_publication_never_send_a_queue_message(self):
+    def test_default_queue_inbox_batches_results_into_one_wakeup(self):
+        thread = '11111111-1111-4111-8111-111111111111'
+        queue_id = '22222222-2222-4222-8222-222222222222'
+        remote = 'unix:///unused-fixture.sock'
+        receipt = {'status': 'accepted',
+                   'stdout': f'Queued message {queue_id} for thread {thread}.'}
+        with patch('task_inbox.submit', return_value=receipt) as submit, \
+                patch('task_inbox.retire', return_value='deleted') as retire:
+            state = task_inbox.initialize(self.mailbox, 'fixture', thread=thread, remote=remote)
+            self.assertEqual(state['transport'], 'codex-queue')
+            self.assertEqual(task_inbox.operate(self.mailbox, 'wait')['mode'], 'waiting')
+            self.publish('review.r1', thread=thread)
+            self.publish('review.r2', thread=thread)
+            submit.assert_called_once()
+            self.assertEqual(submit.call_args.kwargs['thread'], thread)
+            self.assertEqual(submit.call_args.kwargs['remote'], remote)
+            wake = task_inbox.operate(self.mailbox, 'status')['wake']
+            self.assertEqual(wake['queue_id'], queue_id)
+            self.assertEqual(wake['status'], 'accepted')
+            self.assertEqual(len(task_inbox.operate(self.mailbox, 'take')['results']), 2)
+            retire.assert_called_once_with(remote, thread, wake)
+            self.assertIsNone(task_inbox.operate(self.mailbox, 'status')['wake'])
+
+    def test_cli_defaults_to_queue_with_explicit_recipient_and_endpoint(self):
+        thread = '11111111-1111-4111-8111-111111111111'
+        remote = 'unix:///unused-fixture.sock'
+        result = self.command('task_inbox.py', '--mailbox', self.mailbox,
+                              'init', '--task', 'fixture', '--thread', thread, '--remote', remote)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        state = json.loads(result.stdout)
+        self.assertEqual(state['transport'], 'codex-queue')
+        self.assertEqual(state['thread'], thread)
+        self.assertEqual(state['remote'], remote)
+
+    def test_default_inbox_requires_a_recipient_without_creating_a_ledger(self):
+        with self.assertRaisesRegex(ValueError, 'codex-queue inbox needs the coordinator thread'):
+            task_inbox.initialize(self.mailbox, 'fixture')
+        result = self.command('task_inbox.py', '--mailbox', self.mailbox, 'init', '--task', 'fixture')
+        self.assertEqual(result.returncode, 2)
+        self.assertIn('codex-queue inbox needs the coordinator thread', result.stderr)
+        self.assertFalse(self.mailbox.exists())
+
+    def test_explicit_harness_inbox_and_waiting_publication_never_send_a_queue_message(self):
         with patch('task_inbox.submit', side_effect=AssertionError('unexpected external send')):
             state = self.inbox()
             self.assertEqual(state['transport'], 'harness')
@@ -132,7 +174,7 @@ class WorkflowTests(unittest.TestCase):
             'sys.path.insert(0, sys.argv[1])',
             'from task_inbox import initialize',
             'from queue_control import QueueControl',
-            'assert initialize(sys.argv[2], "fixture")["transport"] == "harness"',
+            'assert initialize(sys.argv[2], "fixture", transport="harness")["transport"] == "harness"',
             'try:',
             '    QueueControl("unix:///unused-fixture.sock")',
             'except RuntimeError as error:',

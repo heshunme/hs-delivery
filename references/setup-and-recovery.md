@@ -9,7 +9,7 @@ Keep the initial inspection read-only. Resolve:
 - The target repository and actual checkout/worktree, applicable instructions, existing convention entry, task root and any setup record. An absent `.delivery` is not proof that equivalent infrastructure is missing.
 - The installed skill's accessible location and revision. Its checkout is not necessarily the target project.
 - The actual harness, version, loaded project instruction sources and current completion capabilities. A model name alone does not identify its harness; CLI, desktop, managed sessions and remote execution can differ.
-- The interpreter's absolute path, version, OS and needed standard-library support. Select only the capabilities needed: Markdown workflow, core helpers, or optional `codex-queue`.
+- The interpreter's absolute path, version, OS and needed standard-library support. Select only the capabilities needed: Markdown workflow, core helpers, or the Codex/Paseo queue path.
 - Existing target files and their tracked/ignored state, the Git exclusion file, available package tooling and any configuration that must be preserved.
 
 Classify each needed capability as ready, missing, unsupported or unverified. Repair only relevant gaps. A consultation or brief single-session task can use the Markdown workflow without installing helpers or creating persistent records. Existing project records and conventions may be retained in place.
@@ -73,7 +73,7 @@ Probe a candidate interpreter without installing anything:
 
 Check only the helpers actually needed; `-B` avoids writing import caches during inspection. If core helpers are ready, no package installation or new virtual environment is required. Missing `pip` is not a core-helper failure.
 
-Only the optional `codex-queue` transport needs Python 3.11+, the pinned packages in `<skill>/requirements-queue.txt` and a compatible local daemon/CLI. Follow [the Codex/Paseo adapter](hosts/codex-paseo.md) for protocol checks; an installed library alone does not establish queue or wakeup compatibility.
+Only the `codex-queue` transport, the default for Codex/Paseo inboxes, needs Python 3.11+, the pinned packages in `<skill>/requirements-queue.txt` and a compatible local daemon/CLI. Claude selects `harness` explicitly when it needs an inbox. Follow [the Codex/Paseo adapter](hosts/codex-paseo.md) for protocol checks; an installed library alone does not establish queue or wakeup compatibility.
 
 If this transport is selected, inspect a suitable existing isolated environment first. Otherwise propose `<repo>/.delivery/.venv` and check that the selected Python can create it or that `uv` is available. After confirmation, an example installation is:
 

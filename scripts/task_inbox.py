@@ -69,7 +69,7 @@ def wake_transport(state):
     return state.get('transport', 'codex-queue')
 
 
-def initialize(mailbox, task, thread=None, remote=None, transport='harness'):
+def initialize(mailbox, task, thread=None, remote=None, transport='codex-queue'):
     """Bind a fresh mailbox permanently to one task and coordinator."""
     if transport == 'harness':
         # the host's own completion notices wake the coordinator; nothing here can address it
@@ -265,7 +265,7 @@ def main():
     sub = parser.add_subparsers(dest='action', required=True)
     init = sub.add_parser('init')
     init.add_argument('--task', required=True)
-    init.add_argument('--transport', choices=['codex-queue', 'harness'], default='harness',
+    init.add_argument('--transport', choices=['codex-queue', 'harness'], default='codex-queue',
                       help='How a waiting coordinator is woken: a queued Codex input, or its own host')
     init.add_argument('--thread', help='Coordinator Codex thread UUID; codex-queue only')
     init.add_argument('--remote')

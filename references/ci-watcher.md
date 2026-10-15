@@ -1,6 +1,6 @@
 # Continue after external CI without model polling
 
-Use this only for an authorized task's existing GitHub Actions run. Choose a verified host completion mechanism: [Codex and Paseo](hosts/codex-paseo.md#finite-observers) can use the finite Python observer; [Claude Code](hosts/claude-code.md#long-commands-and-ci) can use native background Bash directly, with no workflow-imposed timeout. Both retain the tested version and reconcile actual results after the callback. Ordinary short commands keep their normal completion path.
+Use this only for an authorized task's existing GitHub Actions run. Choose the host's completion mechanism: [Codex and Paseo](hosts/codex-paseo.md#finite-observers) use the finite Python observer with a `codex-queue` inbox; [Claude Code](hosts/claude-code.md#long-commands-and-ci) can use native background Bash directly, with no workflow-imposed timeout. Both retain the tested version and reconcile actual results after the callback. Ordinary short commands keep their normal completion path.
 
 The remaining sections apply when choosing `watch_ci.py`, which is optional on Claude. It uses installed `gh`, reads run state at intervals and publishes a durable result to the registered task inbox when observation ends. It creates no agent, workflow run, PR edit or merge. Its own finite budget does not impose a time limit on the native Bash path.
 

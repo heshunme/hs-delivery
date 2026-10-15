@@ -16,13 +16,13 @@ After confirmation, adapt the [recovery instruction snippet](assets/recovery-ins
 
 The Markdown workflow can be used without running helpers. Python helpers require Python 3.9+ on Linux, macOS or WSL. Inbox locking uses `fcntl`; native Windows helper support is not implemented. Task artifacts live in the target project, separate from this installation.
 
-Native hand-backs are the first choice for participant results. A `harness` inbox is a local ledger and sends no messages; automatic continuation depends on the host's completion support.
+Paseo-managed Codex participants return results through an inbox with the default `codex-queue` transport, which wakes the waiting coordinator. Claude and built-in Codex subagents use native hand-backs within their documented lifecycle. Claude explicitly selects `--transport harness` when it needs an inbox; that ledger sends no messages and relies on the host's completion path.
 
-Core helpers need no third-party packages or new environment when a suitable interpreter already exists. The optional `codex-queue` transport requires Python 3.11+, the pinned `websockets` package, a compatible local Codex daemon/CLI and a recipient kept available by its host. It connects directly to the local Unix WebSocket in Python. Only select and install this dependency when the transport is needed; reuse a suitable isolated environment or propose a project-local `.delivery/.venv`. The setup guide includes `venv` and `uv` installation examples using this skill's `requirements-queue.txt`.
+Core helpers need no third-party packages or new environment when a suitable interpreter already exists. The default inbox transport, `codex-queue`, requires Python 3.11+, the pinned `websockets` package, a compatible local Codex daemon/CLI and a recipient kept available by its host. It connects directly to the local Unix WebSocket in Python. Install this dependency for the Codex/Paseo inbox path; Markdown-only, core-record and explicit harness-inbox use do not require it. Reuse a suitable isolated environment or propose a project-local `.delivery/.venv`. The setup guide includes `venv` and `uv` installation examples using this skill's `requirements-queue.txt`.
 
 Use the selected interpreter's absolute path for queue-enabled inbox operations, publishers and observer launchers across host terminals. Record local readiness in the setup receipt and the task's actual binding in its record. Core record and harness-inbox helpers can still run on standard-library Python without this package.
 
-Read the [Codex/Paseo host reference](references/hosts/codex-paseo.md) before opting in. The queue adapter is version-sensitive and must be checked on the destination machine. Historical private experiments were not copied as portable proof of host behavior.
+Read the [Codex/Paseo host reference](references/hosts/codex-paseo.md) before using that delivery path. The queue adapter is version-sensitive and must be checked on the destination machine. Historical private experiments were not copied as portable proof of host behavior.
 
 ## Local validation
 
