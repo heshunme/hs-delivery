@@ -30,13 +30,18 @@ class QueueControl:
             raise RuntimeError('Queue transport requires Python 3.11+; core helpers support Python 3.9+')
         # Standard-library-only inbox operations must not require the optional transport.
         try:
-            from websockets.asyncio.client import unix_connect
             from websockets.exceptions import WebSocketException
+            try:
+                from websockets.asyncio.client import unix_connect
+                modern_client = True
+            except ImportError:
+                from websockets import unix_connect
+                modern_client = False
         except ImportError as error:
             requirements = Path(__file__).resolve().parents[1] / 'requirements-queue.txt'
             raise RuntimeError(
-                f'Queue transport requires Python 3.11+ and websockets; '
-                f'install {requirements} into the interpreter running these helpers'
+                f'Queue transport requires Python 3.11+ and compatible websockets; '
+                f'install the OS package or {requirements} for the interpreter running these helpers'
             ) from error
         self.timeout = timeout
         self._websocket_errors = WebSocketException
@@ -45,10 +50,13 @@ class QueueControl:
         self.sequence = 0
 
         async def open_connection():
-            return await unix_connect(
-                remote[7:], open_timeout=10, close_timeout=3, proxy=None,
-                compression=None, ping_interval=None, max_size=100 * 1024 * 1024,
-            )
+            options = {
+                'open_timeout': 10, 'close_timeout': 3, 'compression': None,
+                'ping_interval': None, 'max_size': 100 * 1024 * 1024,
+            }
+            if modern_client:
+                options['proxy'] = None
+            return await unix_connect(remote[7:], **options)
 
         try:
             self.connection = self._run(open_connection())

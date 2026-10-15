@@ -1,2 +1,2 @@
-# Optional codex-queue transport only; requires Python 3.11+.
+# Isolated-environment fallback for codex-queue; compatible managed OS packages are also supported.
 websockets==17.2

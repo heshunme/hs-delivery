@@ -1,5 +1,6 @@
 """Exercise direct Python queue connections against a disposable Unix WebSocket server."""
 
+import asyncio
 import json
 from pathlib import Path
 import sys
@@ -13,7 +14,10 @@ from queue_control import QueueControl, retire
 
 try:
     from websockets.exceptions import ConnectionClosed
-    from websockets.sync.server import unix_serve
+    try:
+        from websockets.asyncio.server import unix_serve
+    except ImportError:
+        from websockets import unix_serve
 except ModuleNotFoundError:
     unix_serve = None
 
@@ -29,14 +33,39 @@ class QueueServer:
         self.closed = threading.Event()
         self.initialization_error = None
         self.reply = reply
-        self.server = unix_serve(self.handle, self.path, compression=None,
-                                 ping_interval=None, close_timeout=1)
-        self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
+        self.loop = asyncio.new_event_loop()
+        self.ready = threading.Event()
+        self.start_error = None
+        self.server = None
+        self.thread = threading.Thread(target=self.run, daemon=True)
         self.thread.start()
+        if not self.ready.wait(timeout=5):
+            raise RuntimeError('fixture server did not start')
+        if self.start_error is not None:
+            raise self.start_error
 
-    def handle(self, connection):
+    def run(self):
+        asyncio.set_event_loop(self.loop)
+
+        async def start():
+            return await unix_serve(
+                self.handle, self.path, compression=None,
+                ping_interval=None, close_timeout=1)
+
         try:
-            for message in connection:
+            self.server = self.loop.run_until_complete(start())
+        except BaseException as error:
+            self.start_error = error
+            self.ready.set()
+            self.loop.close()
+            return
+        self.ready.set()
+        self.loop.run_forever()
+        self.loop.close()
+
+    async def handle(self, connection):
+        try:
+            async for message in connection:
                 request = json.loads(message)
                 self.calls.append(request)
                 if 'id' not in request:
@@ -46,16 +75,22 @@ class QueueServer:
                                 if self.initialization_error is not None
                                 else {'id': request['id'], 'result': {}})
                 else:
-                    response = self.reply(connection, request)
+                    response = await self.reply(connection, request)
                 if response is not None:
-                    connection.send(json.dumps(response))
+                    await connection.send(json.dumps(response))
         except ConnectionClosed:
             pass
         finally:
             self.closed.set()
 
     def close(self):
-        self.server.shutdown()
+        async def shutdown():
+            self.server.close()
+            await self.server.wait_closed()
+
+        future = asyncio.run_coroutine_threadsafe(shutdown(), self.loop)
+        future.result(timeout=5)
+        self.loop.call_soon_threadsafe(self.loop.stop)
         self.thread.join(timeout=5)
         if self.thread.is_alive():
             raise RuntimeError('fixture server did not stop')
@@ -70,7 +105,7 @@ class QueueControlTests(unittest.TestCase):
         return server
 
     def test_exact_wake_cleanup_uses_pagination_and_preserves_other_entries(self):
-        def reply(connection, request):
+        async def reply(connection, request):
             if request['method'] == 'thread/queue/delete':
                 return {'id': request['id'], 'result': {'deleted': True}}
             if request['params'].get('cursor') is None:
@@ -98,9 +133,9 @@ class QueueControlTests(unittest.TestCase):
             {'initialize', 'initialized', 'thread/queue/list', 'thread/queue/delete'}))
 
     def test_matching_response_ignores_notifications_and_other_response_ids(self):
-        def reply(connection, request):
-            connection.send(json.dumps({'method': 'status', 'params': {}}))
-            connection.send(json.dumps({'id': request['id'] + 100, 'result': 'unrelated'}))
+        async def reply(connection, request):
+            await connection.send(json.dumps({'method': 'status', 'params': {}}))
+            await connection.send(json.dumps({'id': request['id'] + 100, 'result': 'unrelated'}))
             return {'id': request['id'], 'result': 'matched'}
 
         server = self.server(reply)
@@ -113,9 +148,11 @@ class QueueControlTests(unittest.TestCase):
         self.assertTrue(server.closed.wait(timeout=5))
 
     def test_rpc_error_is_reported_once_and_connection_is_closed(self):
-        server = self.server(lambda connection, request: {
-            'id': request['id'], 'error': {'code': -32000, 'message': 'fixture refusal'},
-        })
+        async def reply(connection, request):
+            return {'id': request['id'],
+                    'error': {'code': -32000, 'message': 'fixture refusal'}}
+
+        server = self.server(reply)
         client = QueueControl(server.remote)
         try:
             with self.assertRaisesRegex(RuntimeError, 'fixture refusal'):
@@ -126,7 +163,10 @@ class QueueControlTests(unittest.TestCase):
         self.assertTrue(server.closed.wait(timeout=5))
 
     def test_initialization_failure_closes_the_open_connection(self):
-        server = self.server(lambda connection, request: None)
+        async def reply(connection, request):
+            return None
+
+        server = self.server(reply)
         server.initialization_error = {'code': -32000, 'message': 'initialization refused'}
         with self.assertRaisesRegex(RuntimeError, 'initialization refused'):
             QueueControl(server.remote)
@@ -134,9 +174,9 @@ class QueueControlTests(unittest.TestCase):
         self.assertEqual([request['method'] for request in server.calls], ['initialize'])
 
     def test_timeout_does_not_retry_after_notifications_without_a_response(self):
-        def reply(connection, request):
+        async def reply(connection, request):
             for _ in range(10):
-                connection.send(json.dumps({'method': 'status', 'params': {}}))
+                await connection.send(json.dumps({'method': 'status', 'params': {}}))
             return None
 
         server = self.server(reply)
@@ -153,8 +193,8 @@ class QueueControlTests(unittest.TestCase):
         self.assertTrue(server.closed.wait(timeout=5))
 
     def test_peer_closure_is_reported_without_reconnecting(self):
-        def reply(connection, request):
-            connection.close(code=1011, reason='fixture disconnected')
+        async def reply(connection, request):
+            await connection.close(code=1011, reason='fixture disconnected')
             return None
 
         server = self.server(reply)
@@ -168,12 +208,13 @@ class QueueControlTests(unittest.TestCase):
 
     def test_queue_pages_can_contain_inputs_larger_than_one_megabyte(self):
         text = 'x' * (1024 * 1024 + 128)
-        server = self.server(lambda connection, request: {
-            'id': request['id'], 'result': {
+        async def reply(connection, request):
+            return {'id': request['id'], 'result': {
                 'data': [{'id': 'long-input', 'input': [{'type': 'text', 'text': text}]}],
                 'nextCursor': None,
-            },
-        })
+            }}
+
+        server = self.server(reply)
         client = QueueControl(server.remote)
         try:
             entries = list(client.pending('fixture-thread'))
