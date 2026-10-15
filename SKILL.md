@@ -17,6 +17,8 @@ For a request to continue a plan, recover the accepted goal, current stage, deci
 
 When one accepted task spans multiple independent Git repositories, read [multi-repository delivery](references/multi-repo.md). Resolve conflicting plan sources, choose one coordination record, classify each repository or external dependency, and pin the candidate set before assigning work. A non-Git aggregate directory is not a repository, and a passing member repository does not complete the combined delivery.
 
+Reading another repository only for architecture, caller context or incidental comparison does not make the delivery multi-repository. Use this path only when another repository is a pinned write or verification unit, or supplies required versioned evidence for the accepted delivery.
+
 Choose the requested mode:
 
 - **Planning:** establish decisions and acceptance needs; commands in a plan do not start implementation.
