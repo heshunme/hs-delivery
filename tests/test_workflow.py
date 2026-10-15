@@ -3,9 +3,12 @@
 import hashlib
 import json
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
+import threading
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -14,6 +17,7 @@ sys.path.insert(0, str(SCRIPTS))
 
 import task_card
 import task_inbox
+import watch_cmd
 from queue_result import deliver
 
 
@@ -67,6 +71,50 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(json.loads(result.stdout)['linked_worktrees'], [])
         missing_repo = self.command('task_card.py', 'check', '--task-dir', self.task)
         self.assertEqual(missing_repo.returncode, 2)
+
+    def test_card_audit_reports_an_invalid_repository_as_an_error(self):
+        repo = self.root / 'missing-repository'
+        result = self.command('task_card.py', 'check', '--task-dir', self.task, '--repo', repo)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn(str(repo), result.stderr)
+        self.assertIn('worktree', result.stderr)
+
+    def test_worktree_audit_distinguishes_clean_dirty_and_unreadable_checkouts(self):
+        repo = self.root / 'repository'
+        subprocess.run(['git', 'init', '-q', str(repo)], check=True, capture_output=True)
+        subprocess.run(['git', '-C', str(repo), '-c', 'user.name=Fixture',
+                        '-c', 'user.email=fixture@example.invalid', 'commit', '-q',
+                        '--allow-empty', '-m', 'fixture'], check=True, capture_output=True)
+        linked = self.root / 'linked-checkout'
+        subprocess.run(['git', '-C', str(repo), 'worktree', 'add', '-q', '-b',
+                        'fixture-linked', str(linked)], check=True, capture_output=True)
+        self.assertIs(task_card.worktrees(repo)[0]['dirty'], False)
+        (linked / 'untracked.txt').write_text('local input')
+        self.assertIs(task_card.worktrees(repo)[0]['dirty'], True)
+        shutil.rmtree(linked)
+        record = task_card.worktrees(repo)[0]
+        self.assertIsNone(record['dirty'])
+        self.assertTrue(record['prunable'])
+        self.assertTrue(record['error'])
+
+    def test_stop_already_requested_prevents_command_launch_and_log_creation(self):
+        for mechanism in ['file', 'signal']:
+            with self.subTest(mechanism=mechanism):
+                state = self.task / f'stopped-before-launch-{mechanism}'
+                state.mkdir()
+                stopped = threading.Event()
+                if mechanism == 'file':
+                    (state / 'STOP').touch()
+                else:
+                    stopped.set()
+                args = SimpleNamespace(command=['must-not-launch'], cwd=str(self.root), max_wait=10)
+                log = state / 'command.log'
+                with patch('watch_cmd.subprocess.Popen', side_effect=AssertionError('command launched after stop')):
+                    result = watch_cmd.run(args, state, stopped, log)
+                self.assertEqual(result['outcome'], 'stopped')
+                self.assertIsNone(result['exit_code'])
+                self.assertFalse(log.exists())
+                self.assertFalse((state / 'ready.json').exists())
 
     def test_default_inbox_and_waiting_publication_never_send_a_queue_message(self):
         with patch('task_inbox.submit', side_effect=AssertionError('unexpected external send')):

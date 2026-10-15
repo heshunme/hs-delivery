@@ -11,6 +11,7 @@
 - Planning/decision index: `<path or existing source>`.
 - Architecture/design principles: `<path or existing source>`.
 - Review and PR guidance: `<paths; link existing rules rather than duplicate them>`.
+- Delivery host setup: `<persistent recovery instruction source and setup guide; actual connection IDs remain task-local>`.
 
 ## Environment and isolation
 
@@ -51,7 +52,7 @@
 ## Publication and authorization
 
 - Branch/commit/PR conventions: `<existing guidance>`.
-- Merge conditions and method: `<required checks/review/platform evidence and allowed method>`.
+- Merge conditions and method: `<required checks/review/platform evidence, actual PR dependencies/order and allowed method; code changes after review need independent delta review>`.
 - Existing project grants: `<source, authorized actions, scope, conditions and expiry; or none established>`.
 - Release/deployment rules: `<existing guidance when applicable>`.
 

@@ -10,6 +10,8 @@ The project convention entry point is `.delivery/delivery.md`; the fallback task
 
 Copy or clone this whole directory into a location your agent loads skills from, keeping the folder name `hs-delivery`. For Codex, the default skill location is `~/.codex/skills/hs-delivery`. An existing checkout can also be linked into the host's skill directory. This repository does not install itself or change agent configuration.
 
+Then follow [setup and recovery](references/setup-and-recovery.md): fill the [recovery instruction snippet](assets/recovery-instructions.md) and append it to the target host's persistent project instructions. This separate entry points back to the skill and current task card after compaction/resume. Preserve existing instructions and verify the pointer is loaded; the package does not append it automatically.
+
 The Markdown workflow can be used without running helpers. Python helpers require Python 3.9+ on Linux, macOS or WSL. Inbox locking uses `fcntl`; native Windows helper support is not implemented. Task artifacts live in the target project, separate from this installation.
 
 Native hand-backs are the first choice for participant results. A `harness` inbox is a local ledger and sends no messages; automatic continuation depends on the host's completion support.
@@ -34,3 +36,5 @@ Read the [Codex/Paseo host reference](references/hosts/codex-paseo.md) before op
 ```
 
 Without the optional dependency, `python3 -m unittest discover -s tests -v` runs the core checks and skips queue-connection tests. Queue tests use a disposable local Unix WebSocket server. Checks do not contact GitHub or a real agent session, publish messages, or modify another project. Live delivery and host completion on another machine still need an actual trial.
+
+The [destination host acceptance checklist](references/host-acceptance.md) is prepared for that later trial and remains unexecuted. It covers fresh discovery, compaction/resume, participant handoffs, idle completion, interruption and resource closeout. Local tests and this documentation do not claim those host scenarios passed.

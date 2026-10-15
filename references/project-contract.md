@@ -12,6 +12,7 @@ Recover these facts for the current task:
 | Environment | Isolation recipe, data/device limits, shared resource locks and test prerequisites |
 | Records | Task root, evidence locations, private/public boundaries, existing finding or flaky-test log |
 | Publication | PR conventions, permitted delivery endpoint and applicable authorization sources |
+| Host setup | Persistent recovery instruction source and supported completion/resumption path |
 
 Use repository instructions and actual scripts to establish check coverage. Another project's hook behavior, platform matrix, retry allowance, commit style or permission grant does not carry over.
 
@@ -34,3 +35,5 @@ Relative paths in `.delivery/delivery.md` are resolved from that file's director
 - `.delivery/runs/<task>/` is the fallback task location, not a requirement to reorganize existing project records.
 
 Use absolute paths in assignments that cross worktrees or sessions. Do not copy machine-specific inbox state or observer bindings as part of installing the skill elsewhere. Keep private records out of published output; describe the behavior there in self-contained terms.
+
+For adoption, follow [setup and recovery](setup-and-recovery.md) and install the filled recovery snippet in an instruction source the host actually reloads. Reading this project contract is not itself a durable startup trigger. Keep the destination-host trial visibly pending until [its acceptance scenarios](host-acceptance.md) are exercised.

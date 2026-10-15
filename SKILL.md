@@ -22,7 +22,7 @@ Choose the requested mode:
 
 Derive commit, push, PR, merge, release and deployment authority from the user's request and applicable project grants. This skill grants none of those actions on its own and supplies no hook-bypass exemption. Record grants that later sessions need to recover in the [task record](references/task-record.md#authorizations).
 
-On compaction or resumption, reload this skill and the active task card before acting. Use `scripts/task_card.py list --runs <runs-dir>` and `show --task-dir <task-dir>` when the task uses these helpers. Historical completion claims apply to their recorded versions.
+On compaction or resumption, reload this skill and the active task card before acting. This reminder needs a persistent host entry outside the skill body; follow [setup and recovery](references/setup-and-recovery.md) when adopting the skill in a project. Use `scripts/task_card.py list --runs <runs-dir>` and `show --task-dir <task-dir>` when the task uses these helpers. Historical completion claims apply to their recorded versions.
 
 ## Assign ownership and preserve independence
 
@@ -30,7 +30,7 @@ For substantial complete delivery, identify the code writer, independent reviewe
 
 Before creating participants, read [session handoffs](references/session-handoff.md) and the applicable [Codex/Paseo](references/hosts/codex-paseo.md) or [Claude Code](references/hosts/claude-code.md) reference. Use the tools actually available. Give a reviewer fresh context containing the goal, accepted decisions, repository rules, candidate version and necessary artifacts rather than the implementer's full conversation.
 
-Write assignments from the [templates](references/assignments.md). Keep one code writer per checkout and one owner for expensive checks on shared resources. Review may overlap verification on stable inputs; later changes require an assessment against the reviewed version. Reviewers report findings; the code writer makes fixes and returns affected findings for review or independent retest.
+Write assignments from the [templates](references/assignments.md), retaining their explicit verification and hand-back rules when filling project parameters. Keep one code writer per checkout and one owner for expensive checks on shared resources. Review may overlap verification on stable inputs. Code changes after review need an independent delta review; the limited carry-forward cases are in [closeout](references/closeout.md#review-coverage). Reviewers report findings; the code writer makes fixes and returns affected findings for review or independent retest.
 
 Set explicit checkpoints when feedback must precede a design-dependent or expensive next step. Replace a lost participant at a clear boundary and recover its artifacts before repeating work. Do not silently turn the coordinator's own inspection into independent review.
 
@@ -70,8 +70,8 @@ When an inbox is used, `take` and reconcile results, then `wait` before ending a
 
 ## Reconcile the endpoint
 
-Before claiming completion, compare the candidate and working tree with review coverage, finding dispositions, applicable checks, CI and actual acceptance. Distinguish local completion, a reviewable PR and merge readiness. State any remaining requirement and owner.
+Before claiming completion, follow [closeout](references/closeout.md) to compare the candidate and working tree with review coverage, finding dispositions, applicable checks, CI and actual acceptance. Distinguish local completion, a reviewable PR and merge readiness. State any remaining requirement and owner. For multiple PRs, validate the actual merge order and recheck remaining candidates as their base changes.
 
-When merging is authorized, recheck current head and required conditions; use an exact-head guard where the platform provides one. Assess review and verification coverage for any delta. A successful observer result applies only to its pinned inputs.
+When merging is authorized, independently reviewed code must cover the current head, all required checks must have passed on applicable inputs, findings must have dispositions and no merge-blocking maintainer decision or hold may remain. Use an exact-head guard where the platform provides one. Assess verification coverage for any delta. A successful observer result applies only to its pinned inputs.
 
-Preserve necessary evidence, reconcile owned observers and host resources, dispose of inbox results and close registered inboxes. Run `scripts/task_card.py check --task-dir <task-dir> --repo <repo>` to inspect record debts, then use host tools for processes and background tasks. A disappeared process proves cleanup rather than a successful check. Set the task card to `Status: closed` last, and reclaim only task-owned execution resources whose needed evidence is retained.
+Preserve necessary evidence, reconcile owned observers and host resources, dispose of inbox results and close registered inboxes. Run `scripts/task_card.py check --task-dir <task-dir> --repo <repo>` to inspect record debts, then use host tools for processes and background tasks. Inspection errors or unknown checkout state require reconciliation; an empty or incomplete report is not a successful gate. A disappeared process proves cleanup rather than a successful check. Set the task card to `Status: closed` last, and reclaim only task-owned execution resources whose needed evidence is retained.

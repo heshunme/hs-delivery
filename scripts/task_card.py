@@ -74,6 +74,9 @@ def worktrees(repo):
     """Report every linked worktree, wherever its host created it, with its branch and dirty state."""
     result = subprocess.run(['git', '-C', str(repo), 'worktree', 'list', '--porcelain'],
                             text=True, capture_output=True, timeout=30)
+    if result.returncode:
+        detail = result.stderr.strip() or f'git exited {result.returncode}'
+        raise RuntimeError(f'cannot inspect worktrees for {repo}: {detail}')
     entries = []
     # the first entry is the main checkout itself
     for chunk in result.stdout.strip().split('\n\n')[1:]:
@@ -83,8 +86,12 @@ def worktrees(repo):
             continue
         status = subprocess.run(['git', '-C', path, 'status', '--porcelain'],
                                 text=True, capture_output=True, timeout=30)
-        entries.append({'path': path, 'branch': info.get('branch'), 'dirty': bool(status.stdout.strip()),
-                        'prunable': any(line.startswith('prunable') for line in chunk.splitlines())})
+        entry = {'path': path, 'branch': info.get('branch'),
+                 'dirty': None if status.returncode else bool(status.stdout.strip()),
+                 'prunable': any(line.startswith('prunable') for line in chunk.splitlines())}
+        if status.returncode:
+            entry['error'] = status.stderr.strip() or f'git status exited {status.returncode}'
+        entries.append(entry)
     return entries
 
 
@@ -138,7 +145,7 @@ def main():
         else:
             print(json.dumps(check(Path(args.task_dir).resolve(), Path(args.repo)), ensure_ascii=False, indent=2))
         return 0
-    except (OSError, ValueError, KeyError) as error:
+    except (OSError, ValueError, KeyError, RuntimeError, subprocess.SubprocessError) as error:
         print(str(error), file=sys.stderr)
         return 2
 

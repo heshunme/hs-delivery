@@ -18,6 +18,8 @@ For substantial changes, assign one expensive-verification owner and execution p
 
 Assignments name the actual checks. A blanket demand to run every available suite adds no coverage argument.
 
+The implementer, reviewer and acceptance templates carry the short verification rules themselves. Preserve those lines in dispatched assignments; replace only project-specific parameters. A worker should not need the coordinator's transcript to learn about duplicate gates, failure classification or stable candidate inputs.
+
 ## Failures
 
 Classify a red run before rerunning: candidate defect, environment/tool failure or suspected flake. Retain the failure's version, logs, conditions and method.

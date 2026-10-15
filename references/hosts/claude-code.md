@@ -2,6 +2,8 @@
 
 Read with [session handoffs](../session-handoff.md), [assignments](../assignments.md) and [CI continuation](../ci-watcher.md). Use the destination host's actual tool names and capabilities. Private validation reports from the source project are not part of this package.
 
+Install a persistent pointer in the project's loaded instructions or existing memory mechanism using [setup and recovery](../setup-and-recovery.md). Keep it outside the skill body and task history. Confirm a real compaction/resume reloads the skill and card in the later [host trial](../host-acceptance.md); initial skill discovery alone does not establish that behavior.
+
 ## Participants and feedback
 
 When available, create fresh background subagents with `Agent` and record the returned IDs. Use `SendMessage` or the installed equivalent for later rounds. Avoid a fork carrying the implementer's full transcript for independent review. Roles that need continuity should retain their own session between rounds.

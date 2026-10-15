@@ -2,6 +2,8 @@
 
 Read with [session handoffs](../session-handoff.md) and, when needed, the [task inbox](../result-inbox.md). This is an optional host adapter extracted from a particular installation. Inspect destination tools and completion behavior before relying on them; the package does not establish compatibility with every Codex or Paseo version.
 
+Install the persistent project pointer through [setup and recovery](../setup-and-recovery.md). It leads back to this skill and the active task card after compaction/resume; leaving that requirement only in the skill body cannot establish recovery. Verify instruction visibility and actual completion behavior in a later [host trial](../host-acceptance.md).
+
 ## Choose the actual mechanism
 
 Use native collaboration tools for roles that fit their lifecycle. Record returned collaboration identifiers and use that host's message/follow-up tools. Native IDs are not Codex thread UUIDs. Use fresh context for independent review. Determine whether the host wakes an idle parent on completion; if results arrive only within an active turn, wait through the supported in-turn completion tool. Work that must outlive that turn needs a verified persistent session path or explicit later resumption.

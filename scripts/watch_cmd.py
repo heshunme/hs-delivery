@@ -49,6 +49,9 @@ def kill_group(child, signum):
 
 def run(args, state, stopped, log):
     """Wait for the child without polling the model; a stop or deadline ends its whole process group."""
+    if is_stopped(state, stopped):
+        return {'outcome': 'stopped', 'exit_code': None, 'duration_s': 0,
+                'log': str(log), 'log_tail': []}
     with log.open('ab') as output:
         child = subprocess.Popen(args.command, cwd=args.cwd, stdin=subprocess.DEVNULL, stdout=output,
                                  stderr=subprocess.STDOUT, start_new_session=True)

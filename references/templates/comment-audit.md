@@ -9,6 +9,8 @@
 
 Inspect changed comments, documentation, test names and other explanatory text in the diff, plus adjacent claims the change may have invalidated. Product files are read-only; report findings rather than fixing them. Use this separate pass when project rules or the change warrant it.
 
+Pin the audited version and identify any later delta that remains unchecked. Verify suggested corrections against the actual code; this audit does not independently approve changed executable code. If checks are needed, coordinate with the verification owner and reuse unchanged-input evidence. Stop owned background commands before returning.
+
 Check for:
 
 1. Private planning identifiers, machine paths, credentials or internal links that do not belong in the published artifact. Distinguish these from terms and references the project intentionally exposes.

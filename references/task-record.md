@@ -19,6 +19,7 @@ Status: active | paused | closed
 Goal: <one line, link to the plan>
 Stage: <current stage and the delivery endpoint>
 Candidate: <branch> @ <full sha> (+ <local changes>)
+Review: <covered full sha, independent reviewer, and any remaining delta>
 Owners: writer=<id>, reviewer=<id>, verification=<id>, closeout=<id>
 Expecting: <delivery IDs or background task IDs, each with its owner>
 Grants: <applicable project or task grant IDs, or none>
@@ -52,6 +53,8 @@ The coordinator owns the card and the history. Contributors write their own find
 Obsolete status is replaced on the card, never patched in the history. Keep history entries short and link existing result records; do not paste every handoff into `task.md`. Preserve each historical observation's version, environment, method and outcome. Add fixes, retests and corrections as linked later records, explaining any earlier method or conclusion that was wrong.
 
 At a stage handoff or closeout, check the card's candidate, open work and resource state against the actual results before replacing it; `task_card.py check --task-dir <task-dir> --repo <repo>` lists what the records still owe.
+
+Follow [closeout](closeout.md) for review carry-forward, actual merge order and final gate conditions. A failed repository inspection is an error; a linked checkout with `dirty: null` and an `error` has unknown state. Neither permits a clean-resource claim. The audit report itself does not approve delivery.
 
 A coverage table can describe the current candidate if each row identifies its supporting version and any reuse rationale. A table labeled as acceptance of an earlier tree must keep that tree's actual methods and outcomes; later improvements belong in a new versioned entry. Raw failure evidence remains available after a passing retest.
 

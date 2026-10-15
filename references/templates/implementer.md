@@ -20,11 +20,20 @@
 
 <Allowed commit/publication actions and applicable grant sources. Follow required hooks and repository commit conventions.>
 
+Keep these rules when filling project-specific checks:
+
+- Use one code writer for this checkout. Run expensive checks on stable inputs through the assigned verification owner; coordinate shared caches/locks before a concurrent test run.
+- Account for checks already run by hooks. Do not repeat a full gate on unchanged relevant inputs; retain the original tested SHA and explain evidence reuse. For later changes, run required and affected checks rather than every available suite.
+- Classify a failure before rerunning: candidate defect, environment/tool failure or suspected flake. Preserve the failure and follow the project's bounded retry policy. A passing rerun alone does not establish a cause.
+- Preserve required hooks. Use a bypass only under an applicable existing exemption and perform its required replacement checks.
+- Read actual full SHAs from Git in this checkout. Identify staged, unstaged and relevant added inputs separately; a SHA with a dirty flag cannot reconstruct those inputs.
+- Stop at the named feedback checkpoint. Return affected fixes for independent review/retest; your own inspection does not extend independent review coverage to changed code.
+
 ## Checkpoint
 
 <Publish and stop before a feedback-dependent next step, or hand back when this round's scope is complete.>
 
-Before ending, stop or explicitly hand over owned background writers; give the actual HEAD and working-tree state.
+Before ending, stop owned background writers and confirm nothing continues changing the handed-back inputs. If the assignment explicitly permits background work to continue, record its process/host binding, pending status and accepting next owner instead of claiming the round is fully complete. Give the actual HEAD and working-tree state.
 
 ## Result and return
 
