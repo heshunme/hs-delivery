@@ -78,6 +78,26 @@ class WorkflowTests(unittest.TestCase):
         self.assertIsNone(task_inbox.operate(self.mailbox, 'status')['wake'])
         self.assertEqual(len(task_inbox.operate(self.mailbox, 'take')['results']), 1)
 
+    def test_harness_needs_no_site_packages_and_queue_reports_missing_dependency(self):
+        program = '\n'.join([
+            'import sys',
+            'sys.path.insert(0, sys.argv[1])',
+            'from task_inbox import initialize',
+            'from queue_control import QueueControl',
+            'assert initialize(sys.argv[2], "fixture")["transport"] == "harness"',
+            'try:',
+            '    QueueControl("unix:///unused-fixture.sock")',
+            'except RuntimeError as error:',
+            '    assert "Queue transport requires" in str(error)',
+            'else:',
+            '    raise AssertionError("queue dependency was not checked")',
+        ])
+        result = subprocess.run(
+            [sys.executable, '-S', '-c', program, str(SCRIPTS), str(self.mailbox)],
+            cwd=self.root, capture_output=True, text=True, timeout=15,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_result_replay_is_idempotent_but_changed_payload_is_rejected(self):
         self.inbox()
         self.publish()

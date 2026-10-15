@@ -1,0 +1,2 @@
+# Optional codex-queue transport only; requires Python 3.11+.
+websockets==17.2

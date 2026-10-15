@@ -14,19 +14,23 @@ The Markdown workflow can be used without running helpers. Python helpers requir
 
 Native hand-backs are the first choice for participant results. A `harness` inbox is a local ledger and sends no messages; automatic continuation depends on the host's completion support.
 
-The optional `codex-queue` transport additionally requires Node.js, the `ws` dependency, a compatible local Codex daemon/CLI and a recipient kept available by its host. Install the Node dependency from this directory with:
+The optional `codex-queue` transport requires Python 3.11+, the pinned `websockets` package, a compatible local Codex daemon/CLI and a recipient kept available by its host. It connects directly to the local Unix WebSocket in Python. Install the optional dependency into an isolated environment from this directory:
 
 ```bash
-npm ci --ignore-scripts
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements-queue.txt
 ```
+
+With `uv`, use `uv venv .venv` followed by `uv pip install --python .venv/bin/python -r requirements-queue.txt` instead.
+
+Use that interpreter's absolute path for queue-enabled helpers and observer launchers, or activate the environment in each host terminal. Record the chosen interpreter in the task's host setup. Core record and harness-inbox helpers can still run on standard-library Python without this package.
 
 Read the [Codex/Paseo host reference](references/hosts/codex-paseo.md) before opting in. The queue adapter is version-sensitive and must be checked on the destination machine. Historical private experiments were not copied as portable proof of host behavior.
 
 ## Local validation
 
 ```bash
-python3 -m unittest discover -s tests -v
-node --test tests/queue_bridge.test.cjs
+.venv/bin/python -m unittest discover -s tests -v
 ```
 
-The Node test needs the optional dependency and uses a disposable local server. Checks do not contact GitHub or a real agent session, publish messages, or modify another project. Live delivery and host completion on another machine still need an actual trial.
+Without the optional dependency, `python3 -m unittest discover -s tests -v` runs the core checks and skips queue-connection tests. Queue tests use a disposable local Unix WebSocket server. Checks do not contact GitHub or a real agent session, publish messages, or modify another project. Live delivery and host completion on another machine still need an actual trial.

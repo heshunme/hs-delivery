@@ -1,11 +1,10 @@
 """Inspect or remove one recorded task wakeup without loading its Codex thread."""
 
+import asyncio
 import json
-import os
 from pathlib import Path
-import select
 import subprocess
-import time
+import sys
 
 
 def local_remote(remote=None):
@@ -25,59 +24,84 @@ def local_remote(remote=None):
 class QueueControl:
     """Bounded local JSON-RPC connection; never resume, start or interrupt a thread."""
 
-    def __init__(self, remote):
-        # Keep the optional transport inside the skill, independent of the target checkout.
-        bridge = Path(__file__).resolve().with_name('queue_bridge.cjs')
-        if not bridge.is_file():
-            raise FileNotFoundError(f'Queue bridge is missing: {bridge}')
-        self.process = subprocess.Popen(
-            ['node', str(bridge), remote[7:]],
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=None)
-        self.buffer = b''
-        self.sequence = 0
+    def __init__(self, remote, *, timeout=15):
+        remote = local_remote(remote)
+        if sys.version_info < (3, 11):
+            raise RuntimeError('Queue transport requires Python 3.11+; core helpers support Python 3.9+')
+        # Standard-library-only inbox operations must not require the optional transport.
         try:
+            from websockets.asyncio.client import unix_connect
+            from websockets.exceptions import WebSocketException
+        except ImportError as error:
+            requirements = Path(__file__).resolve().parents[1] / 'requirements-queue.txt'
+            raise RuntimeError(
+                f'Queue transport requires Python 3.11+ and websockets; '
+                f'install {requirements} into the interpreter running these helpers'
+            ) from error
+        self.timeout = timeout
+        self._websocket_errors = WebSocketException
+        self.runner = asyncio.Runner()
+        self.connection = None
+        self.sequence = 0
+
+        async def open_connection():
+            return await unix_connect(
+                remote[7:], open_timeout=10, close_timeout=3, proxy=None,
+                compression=None, ping_interval=None, max_size=100 * 1024 * 1024,
+            )
+
+        try:
+            self.connection = self._run(open_connection())
             self.call('initialize', {'clientInfo': {'name': 'hs-delivery-inbox', 'version': '1'},
                                      'capabilities': {'experimentalApi': True}})
             self.send({'method': 'initialized', 'params': {}})
-        except Exception:
+        except BaseException:
             self.close()
             raise
 
     def close(self):
         """Close this client only; preserve the server and thread owner."""
-        self.process.terminate()
+        if self.runner is None:
+            return
         try:
-            self.process.communicate(timeout=3)
-        except subprocess.TimeoutExpired:
-            self.process.kill()
-            self.process.communicate()
+            if self.connection is not None:
+                self._run(self.connection.close())
+        finally:
+            self.runner.close()
+            self.runner = None
+
+    def _run(self, operation):
+        """Keep the synchronous interface while bounding each complete network operation."""
+        async def bounded():
+            return await asyncio.wait_for(operation, timeout=self.timeout)
+
+        try:
+            return self.runner.run(bounded())
+        except TimeoutError as error:
+            raise TimeoutError('Codex queue control timed out') from error
+        except self._websocket_errors as error:
+            raise RuntimeError(f'Codex queue control connection failed: {error}') from error
 
     def send(self, value):
         """Serialize one native protocol message."""
-        self.process.stdin.write((json.dumps(value) + '\n').encode())
-        self.process.stdin.flush()
+        self._run(self.connection.send(json.dumps(value)))
 
     def call(self, method, params):
         """Wait for a matching response, with a finite I/O budget."""
         self.sequence += 1
-        identity = self.sequence
-        self.send({'id': identity, 'method': method, 'params': params})
-        deadline = time.monotonic() + 15
+        return self._run(self._request(self.sequence, method, params))
+
+    async def _request(self, identity, method, params):
+        """Ignore unrelated notifications without extending the request deadline."""
+        await self.connection.send(json.dumps({'id': identity, 'method': method, 'params': params}))
         while True:
-            while b'\n' in self.buffer:
-                line, self.buffer = self.buffer.split(b'\n', 1)
-                value = json.loads(line)
-                if value.get('id') == identity and 'method' not in value:
-                    if 'error' in value:
-                        raise RuntimeError(json.dumps(value['error']))
-                    return value['result']
-            remaining = deadline - time.monotonic()
-            if remaining <= 0 or not select.select([self.process.stdout], [], [], remaining)[0]:
-                raise TimeoutError('Codex queue control timed out')
-            chunk = os.read(self.process.stdout.fileno(), 65536)
-            if not chunk:
-                raise RuntimeError('Codex queue control disconnected')
-            self.buffer += chunk
+            value = json.loads(await self.connection.recv())
+            if not isinstance(value, dict):
+                raise ValueError('Codex queue control received a non-object message')
+            if value.get('id') == identity and 'method' not in value:
+                if 'error' in value:
+                    raise RuntimeError(json.dumps(value['error']))
+                return value['result']
 
     def pending(self, thread):
         """Read queue pages without subscribing to or loading the recipient."""

@@ -12,7 +12,7 @@ For persistent Paseo-managed sessions, use installed session-creation and activi
 
 Before opting in, inspect `codex queue --help` and the local daemon's status via `codex app-server daemon version`. The Python adapter expects the latter to return JSON with `status: running` and `socketPath`. Its queue receipt parser expects `Queued message <uuid> for thread <uuid>`. If those contracts differ, use native hand-backs or a non-sending ledger until the adapter is deliberately updated.
 
-Check the installed endpoint's read-only queue protocol before depending on cleanup. The bundled bridge speaks JSON-RPC over a Unix WebSocket: `initialize`, `initialized`, `thread/queue/list`, `thread/queue/delete`. It loads `ws` from this skill's own dependency installation. A local protocol test covers this adapter against a fixture, not a real host or its wakeup behavior.
+Check the installed endpoint's read-only queue protocol before depending on cleanup. `queue_control.py` connects directly through Python's `websockets` library and speaks JSON-RPC over a Unix WebSocket: `initialize`, `initialized`, `thread/queue/list`, `thread/queue/delete`. It bounds connection, request and close waits and does not reconnect or retry requests automatically. A local protocol test covers this adapter against a fixture, not a real host or its wakeup behavior.
 
 For an authorized worker assignment, persist intent and its artifact before sending:
 
@@ -24,7 +24,7 @@ Use structured subprocess arguments or proper shell quoting. Save the queued-sub
 
 ## Inbox registration
 
-Python 3/fcntl, Git, Node.js, installed `ws` and compatible local Codex tools are prerequisites for this path. The recipient must stay available in its original runtime. An explicit local Unix endpoint can be passed with `--remote unix:///absolute/socket`; otherwise registration pins the existing daemon endpoint.
+Python 3.11+/fcntl, Git, installed `requirements-queue.txt` and compatible local Codex tools are prerequisites for this path. Use the interpreter with that dependency installed for inbox operations, result publishers and observers; launchers in other terminals need the same environment or its explicit interpreter path. The recipient must stay available in its original runtime. An explicit local Unix endpoint can be passed with `--remote unix:///absolute/socket`; otherwise registration pins the existing daemon endpoint.
 
 ```text
 python3 <skill>/scripts/task_inbox.py --mailbox <task-dir>/inbox init
