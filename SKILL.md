@@ -9,7 +9,7 @@ Keep the accepted task, implementation, findings and validation tied to the same
 
 ## Establish the project and task
 
-Resolve the target repository separately from this skill's installation. Read its applicable `AGENTS.md` or equivalent instructions, then its existing task or planning entry point. If present, read `.ai_docs/delivery.md` for project-specific delivery conventions. The [project contract](references/project-contract.md) describes the information to recover; an existing project structure can supply it without a new file.
+Resolve the target repository separately from this skill's installation. Read its applicable `AGENTS.md` or equivalent instructions, then its existing task or planning entry point. If present, read `.delivery/delivery.md` for project-specific delivery conventions. The [project contract](references/project-contract.md) describes the information to recover and links a starter template; an existing project structure can supply it without a new file.
 
 For a request to continue a plan, recover the accepted goal, current stage, decisions and remaining work before choosing an implementation task. Check dated plans against current code and user instructions. An issue list or last completed PR does not establish the next milestone.
 
@@ -36,7 +36,7 @@ Set explicit checkpoints when feedback must precede a design-dependent or expens
 
 ## Maintain a small durable record
 
-Continue an existing task record. When work spans stages or sessions and has no established record, use `.ai_docs/runs/<task>/task.md` in the target project. Resolve `<skill>`, `<repo>`, `<task-dir>` and output paths to actual absolute locations in assignments; ignored project files may be absent from worktrees.
+Continue an existing task record. When work spans stages or sessions and has no established record, use `.delivery/runs/<task>/task.md` in the target project. Resolve `<skill>`, `<repo>`, `<task-dir>` and output paths to actual absolute locations in assignments; ignored project files may be absent from worktrees.
 
 Follow [task records](references/task-record.md): a short current card at the top, then append-only history and links. Replace the card through `scripts/task_card.py`; contributors write their own immutable results. Keep original failures and add fix/retest evidence with its actual version.
 

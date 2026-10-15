@@ -1,6 +1,6 @@
 # Task records and handoffs
 
-Use a record only when continuity across stages or sessions warrants one. Adapt the fields to the task; omit empty scaffolding. Keep one record at `.ai_docs/runs/<task>/task.md`: the task card on top as its only current state, then append-only history, linking existing plans, review reports, acceptance directories, and CI runs rather than moving or duplicating them.
+Use a record only when continuity across stages or sessions warrants one. Adapt the fields to the task; omit empty scaffolding. Keep one record at `.delivery/runs/<task>/task.md` unless the project already specifies a location: the task card on top as its only current state, then append-only history, linking existing plans, review reports, acceptance directories, and CI runs rather than moving or duplicating them.
 
 ## Task card
 
@@ -9,7 +9,7 @@ The top of `task.md` is a card of at most 20 lines between `<!-- task-card:start
 ```text
 python3 <skill>/scripts/task_card.py set --task-dir <task-dir> --card <file or ->
 python3 <skill>/scripts/task_card.py show --task-dir <task-dir>
-python3 <skill>/scripts/task_card.py list --runs <repo>/.ai_docs/runs
+python3 <skill>/scripts/task_card.py list --runs <repo>/.delivery/runs
 ```
 
 Use these lines; omit a line that has nothing to say:
@@ -67,7 +67,7 @@ At closeout, confirm no active participant/process still uses a task-owned tempo
 
 ## Finding record
 
-Use `.ai_docs/runs/<task>/findings/<id>.md` when a finding needs a handoff. Include:
+Use `<task-dir>/findings/<id>.md` when a finding needs a handoff. Include:
 
 1. A stable finding ID, author, observed version, affected behavior, and current disposition.
 2. Preconditions: environment, fixture identity and state, and any relevant concurrent operation.
@@ -75,7 +75,7 @@ Use `.ai_docs/runs/<task>/findings/<id>.md` when a finding needs a handoff. Incl
 4. Impact and reachability assessment, proposed action, and any accepted product decision.
 5. Resolution appended to the original observation: fix SHA or explicitly described local changes, retested scenarios, tested environment/version, results, remaining limits, and independent retest when available.
 
-Keep evidence where the tool already saves it, such as `.ai_docs/agent-browser/<run>/`. References in the current record are enough; a second copy of every log is unnecessary.
+Keep evidence where the tool already saves it. Task-owned acceptance evidence can live at `<task-dir>/acceptance/evidence/`. References in the current record are enough; a second copy of every log is unnecessary.
 
 ## Notification pointer
 

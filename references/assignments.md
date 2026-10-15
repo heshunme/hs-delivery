@@ -1,6 +1,6 @@
 # Assignments
 
-Write every participant assignment from a template under `templates/`, filling its `<…>` fields, and save it as `.ai_docs/runs/<task>/assignments/<delivery-id>.md` before sending. The templates carry the rules a worker needs on either host, so a coordinator that has lost the skill text to compaction still hands them on. Change a template when a rule changes; do not patch a rule into one task's assignment only.
+Write every participant assignment from a template under `templates/`, filling its `<…>` fields, and save it as `<task-dir>/assignments/<delivery-id>.md` before sending. By default `<task-dir>` is `<repo>/.delivery/runs/<task>`. The templates carry the rules a worker needs on either host, so a coordinator that has lost the skill text to compaction still hands them on. Change a template when a rule changes; do not patch a rule into one task's assignment only.
 
 | Template | Role |
 |---|---|

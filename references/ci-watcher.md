@@ -7,7 +7,7 @@ The remaining sections apply when choosing `watch_ci.py`, which is optional on C
 ## Bind and launch
 
 1. Register the coordinator and its [task inbox](result-inbox.md) in the task. The recipient must belong to this task and remain available in its original host.
-2. Read `gh api repos/OWNER/REPO/actions/runs/RUN_ID`. Pin the actual `id`, `run_attempt` and full `head_sha`. Use a fresh state directory for this observer, such as `.ai_docs/runs/<task>/evidence/watch-<run>-<attempt>/`. A rerun of the same run ID changes its attempt and needs reconciliation.
+2. Read `gh api repos/OWNER/REPO/actions/runs/RUN_ID`. Pin the actual `id`, `run_attempt` and full `head_sha`. Use a fresh state directory for this observer, such as `<task-dir>/evidence/watch-<run>-<attempt>/`. A rerun of the same run ID changes its attempt and needs reconciliation.
 3. Launch the observer as a process whose lifetime is independent of a model turn, as the host reference describes. Do not assume an unawaited promise, an arbitrary `&` or a yielded tool call installs a durable callback.
 4. Run the command below with the actual registered values. Choose the interval and finite budget for the run; defaults are 60 seconds and two hours. Pass `--thread` only for a `codex-queue` inbox.
 

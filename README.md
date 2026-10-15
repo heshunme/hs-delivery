@@ -4,6 +4,8 @@ A portable software-delivery skill extracted from the local `buffin-delivery` wo
 
 The repository root is the skill directory: start at [SKILL.md](SKILL.md). The package contains workflow references, four assignment templates, task-record/inbox helpers and optional host observers. Project rules and check commands remain in the target repository; see the [project contract](references/project-contract.md).
 
+The project convention entry point is `.delivery/delivery.md`; the fallback task record is `.delivery/runs/<task>/task.md`. A [starter delivery.md](assets/delivery.md) describes the expected project-specific content. Existing project record locations can be retained.
+
 ## Use on another machine
 
 Copy or clone this whole directory into a location your agent loads skills from, keeping the folder name `hs-delivery`. For Codex, the default skill location is `~/.codex/skills/hs-delivery`. An existing checkout can also be linked into the host's skill directory. This repository does not install itself or change agent configuration.
