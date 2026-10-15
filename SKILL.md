@@ -15,6 +15,8 @@ When project infrastructure is missing or incomplete, follow [setup and recovery
 
 For a request to continue a plan, recover the accepted goal, current stage, decisions and remaining work before choosing an implementation task. Check dated plans against current code and user instructions. An issue list or last completed PR does not establish the next milestone.
 
+When one accepted task spans multiple independent Git repositories, read [multi-repository delivery](references/multi-repo.md). Resolve conflicting plan sources, choose one coordination record, classify each repository or external dependency, and pin the candidate set before assigning work. A non-Git aggregate directory is not a repository, and a passing member repository does not complete the combined delivery.
+
 Choose the requested mode:
 
 - **Planning:** establish decisions and acceptance needs; commands in a plan do not start implementation.
@@ -78,4 +80,4 @@ Before claiming completion, follow [closeout](references/closeout.md) to compare
 
 When merging is authorized, independently reviewed code must cover the current head, all required checks must have passed on applicable inputs, findings must have dispositions and no merge-blocking maintainer decision or hold may remain. Use an exact-head guard where the platform provides one. Assess verification coverage for any delta. A successful observer result applies only to its pinned inputs.
 
-Preserve necessary evidence, reconcile owned observers and host resources, dispose of inbox results and close registered inboxes. Run `scripts/task_card.py check --task-dir <task-dir> --repo <repo>` to inspect record debts, then use host tools for processes and background tasks. Inspection errors or unknown checkout state require reconciliation; an empty or incomplete report is not a successful gate. A disappeared process proves cleanup rather than a successful check. Set the task card to `Status: closed` last, and reclaim only task-owned execution resources whose needed evidence is retained.
+Preserve necessary evidence, reconcile owned observers and host resources, dispose of inbox results and close registered inboxes. Run `scripts/task_card.py check --task-dir <task-dir> --repo <repo>` to inspect record debts; for a multi-repository task, run it separately for every independent Git repository and reconcile the candidate set as described in the multi-repository reference. Then use host tools for processes and background tasks. Inspection errors or unknown checkout state require reconciliation; an empty or incomplete report is not a successful gate. A disappeared process proves cleanup rather than a successful check. Set the task card to `Status: closed` last, and reclaim only task-owned execution resources whose needed evidence is retained.

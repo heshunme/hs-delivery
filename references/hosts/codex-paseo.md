@@ -30,7 +30,7 @@ Use structured subprocess arguments or proper shell quoting. Save the queued-sub
 
 ## Inbox registration
 
-Python 3.11+/fcntl, Git, installed `requirements-queue.txt` and compatible local Codex tools are prerequisites for this path. Use the interpreter with that dependency installed for inbox operations, result publishers and observers; launchers in other terminals need the same environment or its explicit interpreter path. The recipient must stay available in its original runtime. An explicit local Unix endpoint can be passed with `--remote unix:///absolute/socket`; otherwise registration pins the existing daemon endpoint.
+Python 3.11+/fcntl, Git, a compatible `websockets` package and compatible local Codex tools are prerequisites for this path. The package may come from the destination's managed system packages or the isolated fallback pinned in `requirements-queue.txt`; follow the setup guide and verify the queue fixture tests with the selected interpreter. Use that interpreter for inbox operations, result publishers and observers; launchers in other terminals need the same environment or its explicit interpreter path. The recipient must stay available in its original runtime. An explicit local Unix endpoint can be passed with `--remote unix:///absolute/socket`; otherwise registration pins the existing daemon endpoint.
 
 `codex-queue` is the default inbox transport. `harness` is for hosts such as Claude Code that supply the required completion path, not the Codex/Paseo inbox path.
 

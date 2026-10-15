@@ -18,7 +18,7 @@ The Markdown workflow can be used without running helpers. Python helpers requir
 
 Paseo-managed Codex participants return results through an inbox with the default `codex-queue` transport, which wakes the waiting coordinator. Claude and built-in Codex subagents use native hand-backs within their documented lifecycle. Claude explicitly selects `--transport harness` when it needs an inbox; that ledger sends no messages and relies on the host's completion path.
 
-Core helpers need no third-party packages or new environment when a suitable interpreter already exists. The default inbox transport, `codex-queue`, requires Python 3.11+, the pinned `websockets` package, a compatible local Codex daemon/CLI and a recipient kept available by its host. It connects directly to the local Unix WebSocket in Python. Install this dependency for the Codex/Paseo inbox path; Markdown-only, core-record and explicit harness-inbox use do not require it. Reuse a suitable isolated environment or propose a project-local `.delivery/.venv`. The setup guide includes `venv` and `uv` installation examples using this skill's `requirements-queue.txt`.
+Core helpers need no third-party packages or new environment when a suitable interpreter already exists. The default inbox transport, `codex-queue`, requires Python 3.11+, a compatible `websockets` package, a compatible local Codex daemon/CLI and a recipient kept available by its host. It connects directly to the local Unix WebSocket in Python. Install this dependency for the Codex/Paseo inbox path; Markdown-only, core-record and explicit harness-inbox use do not require it. A compatible managed system package can provide it when destination policy calls for host-wide availability; `requirements-queue.txt` pins the isolated-environment fallback.
 
 Use the selected interpreter's absolute path for queue-enabled inbox operations, publishers and observer launchers across host terminals. Record local readiness in the setup receipt and the task's actual binding in its record. Core record and harness-inbox helpers can still run on standard-library Python without this package.
 
@@ -27,9 +27,9 @@ Read the [Codex/Paseo host reference](references/hosts/codex-paseo.md) before us
 ## Local validation
 
 ```bash
-.venv/bin/python -m unittest discover -s tests -v
+python3 -m unittest discover -s tests -v
 ```
 
-Without the optional dependency, `python3 -m unittest discover -s tests -v` runs the core checks and skips queue-connection tests. Queue tests use a disposable local Unix WebSocket server. Checks do not contact GitHub or a real agent session, publish messages, or modify another project. Live delivery and host completion on another machine still need an actual trial.
+Without a compatible `websockets` package, the same command runs the core checks and skips queue-connection tests. Queue tests use a disposable local Unix WebSocket server. Checks do not contact GitHub or a real agent session, publish messages, or modify another project. Live delivery and host completion on another machine still need an actual trial.
 
 The [destination host acceptance checklist](references/host-acceptance.md) is prepared for that later trial and remains unexecuted. It covers fresh discovery, compaction/resume, participant handoffs, idle completion, interruption and resource closeout. Local tests and this documentation do not claim those host scenarios passed.

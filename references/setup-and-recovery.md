@@ -16,6 +16,8 @@ Classify each needed capability as ready, missing, unsupported or unverified. Re
 
 Participants in an existing delivery use the coordinator-provided accessible convention and task paths. Ignored records need not exist in every worktree; their absence is not a reason to initialize each participant's checkout or duplicate the records.
 
+For a task spanning independent repositories, follow [multi-repository delivery](multi-repo.md). Choose one accessible coordination repository or established record location for the shared convention and task record. Do not initialize `.delivery` in every member repository, and do not select a non-Git aggregate directory merely because it contains all checkouts. Each member still keeps and follows its own repository instructions.
+
 ## Show a concrete plan and obtain confirmation
 
 Before writing project files, exclusions, environments or host settings, show the actual intended changes. A useful preview contains:
@@ -73,18 +75,18 @@ Probe a candidate interpreter without installing anything:
 
 Check only the helpers actually needed; `-B` avoids writing import caches during inspection. If core helpers are ready, no package installation or new virtual environment is required. Missing `pip` is not a core-helper failure.
 
-Only the `codex-queue` transport, the default for Codex/Paseo inboxes, needs Python 3.11+, the pinned packages in `<skill>/requirements-queue.txt` and a compatible local daemon/CLI. Claude selects `harness` explicitly when it needs an inbox. Follow [the Codex/Paseo adapter](hosts/codex-paseo.md) for protocol checks; an installed library alone does not establish queue or wakeup compatibility.
+Only the `codex-queue` transport, the default for Codex/Paseo inboxes, needs Python 3.11+, a compatible `websockets` package and a compatible local daemon/CLI. Claude selects `harness` explicitly when it needs an inbox. Follow [the Codex/Paseo adapter](hosts/codex-paseo.md) for protocol checks; an installed library alone does not establish queue or wakeup compatibility.
 
-If this transport is selected, inspect a suitable existing isolated environment first. Otherwise propose `<repo>/.delivery/.venv` and check that the selected Python can create it or that `uv` is available. After confirmation, an example installation is:
+If this transport is selected, first inspect an existing interpreter or environment and the destination's managed packages. When project policy calls for host-wide availability, prefer the platform package manager after the setup plan is confirmed. For example, on an APT-based host:
 
 ```text
-<base-python> -m venv <repo>/.delivery/.venv
-<repo>/.delivery/.venv/bin/python -m pip install -r <skill>/requirements-queue.txt
+apt-cache policy python3-websockets
+sudo apt-get install python3-websockets
 ```
 
-With an existing `uv`, the equivalent is `uv venv --python <base-python> <repo>/.delivery/.venv`, then `uv pip install --python <repo>/.delivery/.venv/bin/python -r <skill>/requirements-queue.txt`. These commands illustrate resolved paths; use structured arguments or proper quoting. Do not install Python, package managers or packages globally as an implicit fallback. If the planned route is unavailable, preserve the partial result and propose only the necessary adjustment.
+Do not use system-level `pip` in place of the platform package manager. When no compatible managed package exists and project policy permits isolation, reuse a suitable environment or propose `<repo>/.delivery/.venv`, then install the pinned fallback from `<skill>/requirements-queue.txt` with that environment's `pip` or `uv`. These commands illustrate resolved paths; use structured arguments or proper quoting. Do not choose a global or isolated installation implicitly; record the selected ownership. If the planned route is unavailable, preserve the partial result and propose only the necessary adjustment.
 
-Verify the chosen environment with `sys.version_info >= (3, 11)`, `importlib.metadata.version('websockets')` against the requirement and imports of `fcntl` and `websockets.asyncio.client.unix_connect`. Record its absolute interpreter path in `setup.md`. Queue-enabled inbox operations, publishers and observer launchers must all use that interpreter, including across terminals. A task records its actual interpreter/binding; a project setup receipt supplies a candidate to recheck, not proof that another machine or worktree has it.
+Verify the chosen interpreter with `sys.version_info >= (3, 11)`, the installed `websockets` version and ownership, `fcntl`, and either `websockets.asyncio.client.unix_connect` or the compatible top-level `websockets.unix_connect`. Run the queue fixture tests with that interpreter. Record its absolute path and package ownership in `setup.md`. Queue-enabled inbox operations, publishers and observer launchers must all use that interpreter, including across terminals. A task records its actual interpreter/binding; a project setup receipt supplies a candidate to recheck, not proof that another machine or worktree has it.
 
 ## Add the host's project instruction entry
 

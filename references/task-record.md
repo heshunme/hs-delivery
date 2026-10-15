@@ -18,7 +18,7 @@ Use these lines; omit a line that has nothing to say:
 Status: active | paused | closed
 Goal: <one line, link to the plan>
 Stage: <current stage and the delivery endpoint>
-Candidate: <branch> @ <full sha> (+ <local changes>)
+Candidate: <branch> @ <full sha> (+ <local changes>), or candidate set at <absolute path>
 Review: <covered full sha, independent reviewer, and any remaining delta>
 Owners: writer=<id>, reviewer=<id>, verification=<id>, closeout=<id>
 Expecting: <delivery IDs or background task IDs, each with its owner>
@@ -40,7 +40,7 @@ Capture enough for another session to continue without reconstructing the conver
 
 - **Goal and scope:** intended behavior, accepted plan, current stage, explicit exclusions and completion endpoint, such as local implementation, a reviewable PR, or an authorized merge.
 - **Decisions:** the decision, its reason, and the user message or evidence that established it; distinguish proposals from accepted choices.
-- **Version:** branch, comparison base, candidate HEAD and tree, plus any staged, unstaged, or relevant untracked inputs. For local-only work, identify the changed private files rather than implying HEAD captures them.
+- **Version:** branch, comparison base, candidate HEAD and tree, plus any staged, unstaged, or relevant untracked inputs. For local-only work, identify the changed private files rather than implying HEAD captures them. For a task spanning independent repositories, follow [multi-repository delivery](multi-repo.md): link a small candidate set from the card and keep each repository, external input, review and check tied to its actual version.
 - **Responsibilities:** current code writer, independent reviewer, verification owner and closeout owner as applicable. Record the actual session mechanism, cwd and known session IDs; label the ID namespace, such as Paseo agent ID, native Codex thread ID, collaboration task path, Claude subagent ID or Claude background task ID. Unknown IDs remain unknown. Distinguish planned review from completed independent review and self-review, with the version covered.
 - **Acceptance and evidence:** meaningful scenarios, required checks and environments, execution owner and timing, status, tested version and evidence links. Determine conditional platform coverage from the project's rules; a focused job does not replace a broader required suite. Record failures, blocked checks and unexecuted cases explicitly. Existing evidence stays tied to its original version with any reuse rationale.
 - **Findings and next action:** links to findings, their disposition, the next responsible participant and any decision actually needed from the user. Give deferred findings a reachable follow-up, which may be a private record. If monitoring is paused at the user's request, record who will resume and what result needs reconciliation.
@@ -54,7 +54,7 @@ When helpers or observers are used, record their actual interpreter's absolute p
 
 Obsolete status is replaced on the card, never patched in the history. Keep history entries short and link existing result records; do not paste every handoff into `task.md`. Preserve each historical observation's version, environment, method and outcome. Add fixes, retests and corrections as linked later records, explaining any earlier method or conclusion that was wrong.
 
-At a stage handoff or closeout, check the card's candidate, open work and resource state against the actual results before replacing it; `task_card.py check --task-dir <task-dir> --repo <repo>` lists what the records still owe.
+At a stage handoff or closeout, check the card's candidate, open work and resource state against the actual results before replacing it; `task_card.py check --task-dir <task-dir> --repo <repo>` lists what the records still owe for one repository. Run it separately for every independent repository in a multi-repository candidate set, then reconcile the combined evidence.
 
 Follow [closeout](closeout.md) for review carry-forward, actual merge order and final gate conditions. A failed repository inspection is an error; a linked checkout with `dirty: null` and an `error` has unknown state. Neither permits a clean-resource claim. The audit report itself does not approve delivery.
 
@@ -68,7 +68,7 @@ Create runnable copies when stable inputs, isolated execution or remote deployme
 
 Retain the result, method, environment, source identity and original evidence supporting important failures, fixes and remaining questions. Keep unique traces or actual build outputs when the conclusion depends on them. Ordinary reproducible build intermediates, unpacked dependencies, generated load data and temporary profiles are execution resources; they do not all need permanent copies.
 
-At closeout, confirm no active participant/process still uses a task-owned temporary directory and that needed evidence has a retained, reachable source before removing it. `task_card.py check --task-dir <task-dir> --repo <repo>` lists, read-only, the card state, every inbox's undisposed results, changed artifacts and unreconciled terminals, and every linked worktree still present, this task's or not, with its dirty or prunable state; host background tasks are checked through the host. Keep unresolved diagnostic material and the input needed to reproduce it. Cleanup does not authorize removing unrelated files or bulk pruning old task archives. Store progress and corrections honestly even when disposable runtime data is reclaimed.
+At closeout, confirm no active participant/process still uses a task-owned temporary directory and that needed evidence has a retained, reachable source before removing it. `task_card.py check --task-dir <task-dir> --repo <repo>` lists, read-only, the card state, every inbox's undisposed results, changed artifacts and unreconciled terminals, and every linked worktree of that repository still present, this task's or not, with its dirty or prunable state; invoke it once per independent repository when needed, while host background tasks are checked through the host. Keep unresolved diagnostic material and the input needed to reproduce it. Cleanup does not authorize removing unrelated files or bulk pruning old task archives. Store progress and corrections honestly even when disposable runtime data is reclaimed.
 
 ## Finding record
 

@@ -30,9 +30,9 @@
 
 - Selected mode: `<Markdown only, core helpers, or codex-queue>`.
 - Interpreter: `<absolute executable and Python version, or not needed>`.
-- Environment ownership: `<existing/reused or setup-created absolute environment; package tool if used>`.
+- Environment ownership: `<existing/reused interpreter or setup-created absolute environment; managed or isolated package tool if used>`.
 - Probe results: `<OS/fcntl, selected helpers and tested time; missing capabilities stay explicit>`.
-- Optional packages: `<installed versions against requirements-queue.txt, or not selected>`.
+- Optional packages: `<installed versions and ownership; compatibility result, or not selected>`.
 - Optional queue compatibility: `<read-only protocol evidence or pending/not selected>`.
 - Launcher rule: `<interpreter to use for inboxes, publishers and observers; recheck in another execution environment>`.
 

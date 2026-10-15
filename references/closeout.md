@@ -20,6 +20,8 @@ Establish dependencies, candidate heads and intended merge order. Test each cand
 
 After each actual merge, promptly update dependent candidates and recheck remaining order. Record any local conflict resolution that is not yet pushed. Code changes made while resolving conflicts need independent delta review and affected checks before the resulting head is eligible to merge.
 
+For a delivery spanning independent repositories, also read [multi-repository delivery](multi-repo.md). Reconcile the linked candidate set, including verification-only units and external configuration or deployment inputs. Run `task_card.py check` once per independent Git repository; its report covers linked worktrees of that repository only. Per-repository success does not replace required combination checks, environment acceptance, external-owner evidence or ordered rollback validation.
+
 ## Publication and merge readiness
 
 Use this evidence at the authorized endpoint:
@@ -42,6 +44,6 @@ An accepted limitation and a passed check are different claims. Keep an explicit
 
 Preserve evidence needed to support the results, then reconcile owned processes, host tasks, observers, inbox results and temporary execution directories. Check ownership before removing anything. A stopped observer can leave a host terminal behind; a disappeared terminal cannot prove CI passed.
 
-Run `task_card.py check --task-dir <task-dir> --repo <repo>` for a read-only debt report. An invalid repository or failed Git inspection is an error. An unreadable linked checkout has `dirty: null` plus an `error`; its state is unknown and needs reconciliation before a clean-resource claim. Inspect `prunable` entries rather than treating them as safe to delete automatically.
+Run `task_card.py check --task-dir <task-dir> --repo <repo>` for a read-only debt report, separately for each independent repository in a multi-repository candidate set. An invalid repository or failed Git inspection is an error. An unreadable linked checkout has `dirty: null` plus an `error`; its state is unknown and needs reconciliation before a clean-resource claim. Inspect `prunable` entries rather than treating them as safe to delete automatically.
 
 The report lists debts rather than enforcing all delivery gates. Its exit code alone does not approve the task; inspect the card, pending results, changed artifacts, checkout state and actual host resources. Update authorized external descriptions to match the final candidate, or prepare the exact correction when external writing is outside scope. Keep historical evidence versioned. Close registered inboxes and set the current task card to `Status: closed` last.
