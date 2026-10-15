@@ -2,7 +2,7 @@
 
 Read with [session handoffs](../session-handoff.md) and, when needed, the [task inbox](../result-inbox.md). This is an optional host adapter extracted from a particular installation. Inspect destination tools and completion behavior before relying on them; the package does not establish compatibility with every Codex or Paseo version.
 
-Install the persistent project pointer through [setup and recovery](../setup-and-recovery.md). It leads back to this skill and the active task card after compaction/resume; leaving that requirement only in the skill body cannot establish recovery. Verify instruction visibility and actual completion behavior in a later [host trial](../host-acceptance.md).
+Follow [project initialization and recovery](../setup-and-recovery.md) before first adoption: inspect, preview actual changes and obtain setup confirmation. Append the recovery pointer to the applicable loaded `AGENTS.md` or an established project instruction mechanism, preserving its existing rules. Record the actual harness/version and local interpreter in the setup receipt; Codex, Paseo-managed sessions and other execution surfaces need their own capability checks. A pointer is intended to lead back to the skill and task card; distinguish writing it, observing it loaded and verifying compaction/resume in a later [host trial](../host-acceptance.md).
 
 ## Choose the actual mechanism
 

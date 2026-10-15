@@ -48,6 +48,8 @@ Capture enough for another session to continue without reconstructing the conver
 
 The coordinator owns the card and the history. Contributors write their own finding or evidence files, then the coordinator links the result. This avoids competing edits to one status document. Replace the card at meaningful handoffs, scope decisions, verification results, and closeout, not after every command.
 
+When helpers or observers are used, record their actual interpreter's absolute path with the task's host details. `.delivery/setup.md` can supply a previously selected environment to recheck, but does not establish availability in another worktree, terminal or machine. Setup receipts do not replace this task's session mapping or authorization ledger.
+
 ## Current state and historical evidence
 
 Obsolete status is replaced on the card, never patched in the history. Keep history entries short and link existing result records; do not paste every handoff into `task.md`. Preserve each historical observation's version, environment, method and outcome. Add fixes, retests and corrections as linked later records, explaining any earlier method or conclusion that was wrong.

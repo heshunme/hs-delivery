@@ -11,6 +11,8 @@ Keep the accepted task, implementation, findings and validation tied to the same
 
 Resolve the target repository separately from this skill's installation. Read its applicable `AGENTS.md` or equivalent instructions, then its existing task or planning entry point. If present, read `.delivery/delivery.md` for project-specific delivery conventions. The [project contract](references/project-contract.md) describes the information to recover and links a starter template; an existing project structure can supply it without a new file.
 
+When project infrastructure is missing or incomplete, follow [setup and recovery](references/setup-and-recovery.md): inspect without writing, explain the concrete initialization changes and obtain the user's confirmation before applying them. Reuse equivalent existing infrastructure; skill invocation alone does not authorize setup, and consultation or a brief task need not create persistent records. Approval to update this skill package does not initialize its repository or any other project.
+
 For a request to continue a plan, recover the accepted goal, current stage, decisions and remaining work before choosing an implementation task. Check dated plans against current code and user instructions. An issue list or last completed PR does not establish the next milestone.
 
 Choose the requested mode:
@@ -22,7 +24,7 @@ Choose the requested mode:
 
 Derive commit, push, PR, merge, release and deployment authority from the user's request and applicable project grants. This skill grants none of those actions on its own and supplies no hook-bypass exemption. Record grants that later sessions need to recover in the [task record](references/task-record.md#authorizations).
 
-On compaction or resumption, reload this skill and the active task card before acting. This reminder needs a persistent host entry outside the skill body; follow [setup and recovery](references/setup-and-recovery.md) when adopting the skill in a project. Use `scripts/task_card.py list --runs <runs-dir>` and `show --task-dir <task-dir>` when the task uses these helpers. Historical completion claims apply to their recorded versions.
+On compaction or resumption, reload this skill and the active task card before acting. Put the recovery reminder in a loaded project instruction source outside the skill body; [setup and recovery](references/setup-and-recovery.md) separates written configuration, observed loading and verified recovery. Use `scripts/task_card.py list --runs <runs-dir>` and `show --task-dir <task-dir>` when the task uses these helpers. Historical completion claims apply to their recorded versions.
 
 ## Assign ownership and preserve independence
 

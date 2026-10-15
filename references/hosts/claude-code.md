@@ -2,7 +2,7 @@
 
 Read with [session handoffs](../session-handoff.md), [assignments](../assignments.md) and [CI continuation](../ci-watcher.md). Use the destination host's actual tool names and capabilities. Private validation reports from the source project are not part of this package.
 
-Install a persistent pointer in the project's loaded instructions or existing memory mechanism using [setup and recovery](../setup-and-recovery.md). Keep it outside the skill body and task history. Confirm a real compaction/resume reloads the skill and card in the later [host trial](../host-acceptance.md); initial skill discovery alone does not establish that behavior.
+Follow [project initialization and recovery](../setup-and-recovery.md) before first adoption: inspect, preview actual changes and obtain setup confirmation. Append the recovery pointer to the project's loaded `CLAUDE.md` or another explicitly configured project instruction source, preserving existing rules. Automatic memory can retain learned hints, but it is not this required instruction entry; the task card separately preserves task state. Keep the pointer outside the skill body and task history. Record this harness/version and separate configuration written, entry loaded and recovery verified in the local setup receipt. Confirm a real compaction/resume reloads the skill and correct card in the later [host trial](../host-acceptance.md); initial discovery alone does not establish that behavior.
 
 ## Participants and feedback
 

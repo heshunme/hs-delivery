@@ -1,6 +1,6 @@
 # Project delivery conventions
 
-<!-- Copy into the target project's .delivery/delivery.md, fill from actual project sources,
+<!-- After setup confirmation, copy into the target project's .delivery/delivery.md, fill from actual project sources,
      and remove irrelevant fields. This Markdown is read by the agent, not parsed by scripts.
      Paths are relative to this file; ../AGENTS.md points to the repository root.
      Unknown facts stay explicit. Task progress and results belong in runs/<task>/task.md. -->
@@ -11,7 +11,8 @@
 - Planning/decision index: `<path or existing source>`.
 - Architecture/design principles: `<path or existing source>`.
 - Review and PR guidance: `<paths; link existing rules rather than duplicate them>`.
-- Delivery host setup: `<persistent recovery instruction source and setup guide; actual connection IDs remain task-local>`.
+- Delivery project instructions: `<actual loaded project instruction source and setup guide>`.
+- Local setup receipt: `setup.md` under the default layout; machine paths and host verification belong there, while actual connection IDs remain task-local.
 
 ## Environment and isolation
 
