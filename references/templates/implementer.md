@@ -7,7 +7,7 @@
 
 <Goal, accepted design/decisions, scope items, exclusions and completion endpoint. Link the source artifacts. Flag a material conflict with accepted behavior before the dependent step; make and record routine implementation choices.>
 
-- Base: `<branch>` at `<full sha>`.
+- Base and inputs: `<branch/full sha for Git, relevant artifact/config/data versions and local inputs>`.
 - Worktree: `<actual path and creation mechanism, if needed>`.
 - Skill: `<absolute skill directory>`. Task record: `<absolute task.md>`.
 - Write boundary: `<code checkout and result/evidence locations>`.
@@ -15,7 +15,7 @@
 - Shared state or combination risks: `<other work, mutable caches, resource owner, or none>`.
 - Finding treatment: `<selected IDs, confirmed severity, resolution criteria and explicit deferrals; no blanket fix-all>`.
 - Repair recheck policy: `<independent recheck or writer verification by severity; source>`.
-- Review budget: `<rounds used/finite limit; next authorized checkpoint>`.
+- Review unit and budget: `<predeclared unit ID/scope, rounds used/finite limit; interaction coverage and next authorized checkpoint>`.
 
 ## Checks and authority
 
@@ -29,10 +29,10 @@ Keep these rules when filling project-specific checks:
 - Account for checks already run by hooks. Do not repeat a full gate on unchanged relevant inputs; retain the original tested SHA and explain evidence reuse. For later changes, run required and affected checks rather than every available suite.
 - Classify a failure before rerunning: candidate defect, environment/tool failure or suspected flake. Preserve the failure and follow the project's bounded retry policy. A passing rerun alone does not establish a cause.
 - Preserve required hooks. Use a bypass only under an applicable existing exemption and perform its required replacement checks.
-- Read actual full SHAs from Git in this checkout. Identify staged, unstaged and relevant added inputs separately; a SHA with a dirty flag cannot reconstruct those inputs.
+- Identify the actual candidate and relevant configuration/data/dependency/artifact inputs. Read full SHAs from Git for code in this checkout; identify staged, unstaged and relevant added inputs separately. A SHA with a dirty flag cannot reconstruct those inputs.
 - Repair the assigned findings; do not automatically implement every review suggestion. Confirmed blockers must be resolved before completion; major/minor treatment follows project policy. Report new findings to the coordinator for disposition before expanding the repair scope.
 - Verify every fix against its resolution criterion. Return fixes for independent review/retest only as required by the supplied project policy. Writer verification does not extend the actual independently reviewed version.
-- Stop at the named feedback checkpoint. Do not start additional repair/review cycles or reset an exhausted budget; return remaining requirements for coordinator reconciliation.
+- Stop at the named feedback checkpoint. Do not start additional repair/review cycles or reset an exhausted unit's budget by renaming or splitting its work; return remaining requirements for coordinator reconciliation.
 
 ## Checkpoint
 
@@ -42,7 +42,7 @@ Before ending, stop owned background writers and confirm nothing continues chang
 
 ## Result and return
 
-Write `<task-dir>/results/<delivery-id>.md`: actual full SHA and local inputs, outcome per scope item, deviations/reasons, shared code touched, meaningful tests/checks and their tested inputs/outcomes, unresolved requirements and next owner. Keep it immutable after publication.
+Write `<task-dir>/results/<delivery-id>.md`: actual candidate and relevant inputs (full SHA/local changes for Git), outcome per scope item, deviations/reasons, shared code touched, meaningful tests/checks and their tested inputs/outcomes, unresolved requirements and next owner. Keep it immutable after publication.
 
 <Keep the return path chosen by the coordinator; see the assignment guidance.>
 
@@ -50,7 +50,7 @@ Write `<task-dir>/results/<delivery-id>.md`: actual full SHA and local inputs, o
 Result: <delivery-id>
 Artifact: <absolute result path>
 SHA-256: <artifact digest>
-Version: <actual full sha and any local inputs>
+Version: <actual candidate identity and relevant inputs; full sha for Git>
 Verdict: <one line>
 Decisions needed: <none, or specific decisions>
 ```

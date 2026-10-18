@@ -12,7 +12,7 @@
 - Repository instructions: `<path, for example ../AGENTS.md>`.
 - Planning/decision index: `<path or existing source>`.
 - Architecture/design principles: `<path or existing source>`.
-- Review and PR guidance: `<paths; link existing rules rather than duplicate them>`.
+- Review and delivery guidance: `<paths; link existing rules rather than duplicate them>`.
 - Delivery project instructions: `<actual loaded project instruction source and setup guide>`.
 - Local setup receipt: `setup.md` under the default layout; machine paths and host verification belong there, while actual connection IDs remain task-local.
 
@@ -35,7 +35,7 @@
 
 - Evidence reuse: `<project-specific conditions beyond the skill's version/input rules, if any>`.
 - Suspected flakes: `<bounded retry policy and case-log location, or no project-specific policy>`.
-- Hook exemptions: `<existing policy source and replacement checks, or none established>`.
+- Hook exemptions: `<existing authorization source, covered hooks/actions, conditions, replacement checks and validity; or none established>`.
 
 ## Review and acceptance
 
@@ -49,9 +49,9 @@ The defaults below are a proposal to reconcile with existing project rules durin
 | Minor treatment | No automatic repair; record a disposition and select only worthwhile in-scope fixes | `<required/optional repairs and decision owner>` |
 | Blocker repair recheck | Targeted independent review/retest after verification | `<independent recheck or writer verification only>` |
 | Major/minor repair recheck | Writer verification; no automatic independent review | `<policy for each severity>` |
-| Code-review budget | Three rounds total: initial full review and at most two incremental rechecks; retain across sessions | `<finite total and extension decision owner>` |
-| Separate text audit | When project rules or the change warrant one; changed/invalidated text is always inspected | `<every PR/conditional requirement and execution point>` |
-| UI preview | Before/after evidence for visible UI changes | `<trigger, method and evidence location, or reason inapplicable>` |
+| Review units and budget | Three rounds per predeclared unit: initial full review and at most two incremental rechecks; retain across sessions | `<unit boundary convention, finite total and extension decision owner; actual units/counts belong in task records>` |
+| Separate text audit | When project rules or the change warrant one; changed/invalidated text is always inspected | `<every PR/MR, release or conditional trigger; independent auditor, scope and execution point>` |
+| Change presentation | Concise comparison/demonstration suited to the changed behavior and its audience | `<trigger, UI/CLI/API/artifact/plan evidence, location, or reason inapplicable; new capabilities need no invented before state>` |
 
 - Behavior/platform acceptance: `<changes requiring real-host/manual evidence; existing SOPs>`.
 - Completion criteria: `<project-specific gates; the current task defines its actual endpoint>`.
@@ -63,13 +63,14 @@ The defaults below are a proposal to reconcile with existing project rules durin
 - Task root: `runs/` unless the project uses another established location.
 - Per-task entry: `runs/<task>/task.md` under this convention.
 - Evidence and diagnostics: `<tool output locations; retain links instead of duplicating evidence>`.
-- Visibility/version control: `<what is shared, tracked or ignored; where private artifacts belong>`.
+- Visibility/version control: `.delivery/` is local and private by default, using Git's local exclusion without editing the target project's `.gitignore`; link existing alternative record conventions when retained. Exclusion does not make existing tracked files private.
 
 ## Publication and authorization
 
-- Branch/commit/PR conventions: `<existing guidance>`.
+- Delivery endpoint: `<local result, reviewable PR/MR, merge, versioned artifact, release or deployment stage; task records name the selected endpoint>`.
+- Branch/commit/PR/MR conventions: `<existing guidance when applicable>`.
 - Merge conditions and method: `<required initial review and repair recheck policy, resolved blockers, checks/platform evidence, actual PR dependencies/order and allowed method>`.
-- Existing project grants: `<source, authorized actions, scope, conditions and expiry; or none established>`.
+- Existing project grants: `<source, authorized actions, scope, conditions and expiry; or none established; identify standing merge/publication grants separately from per-task grants>`.
 - Release/deployment rules: `<existing guidance when applicable>`.
 
 Only actual applicable user or project authorization permits publication, merge, release or deployment. Task-specific grants are recorded with their source in the task record.

@@ -4,13 +4,19 @@ Read this for an independent review, with the project's review and design rules 
 
 ## Establish scope and expectations
 
-Identify the actual comparison base, candidate and relevant local inputs. Resolve the base from the task and repository rather than assuming a branch name. Read the entire assigned diff, including deletions, renames, generated files, migrations, tests, configuration, guard scripts and documentation. Follow affected callers and dependencies where needed to assess behavior. State any unread or unavailable scope.
+Identify the actual comparison base and [candidate inputs](task-record.md#candidate-inputs-and-retention). Resolve the base from the task and repository rather than assuming a branch name. Inventory the whole assigned change, including deletions, renames, generated files, migrations, tests, configuration, guard scripts, documentation and non-text artifacts. Full review means complete coverage with a method appropriate to each artifact:
+
+- Read handwritten code and explanatory text closely, following affected callers and dependencies where needed.
+- For generated output, inspect the source/generator changes, regeneration consistency and consequential output semantics. Large mechanical output need not receive line-by-line reading; generation alone does not establish correctness, especially for migrations and compatibility changes.
+- For binaries, datasets and other non-text artifacts, use relevant manifests, semantic comparisons, integrity checks or representative inspection with a stated rationale and limits. A sampled inspection is not exhaustive validation of every value.
+
+Report each category's coverage method and any unavailable scope. Do not silently omit a category because the usual text diff cannot show it.
 
 Establish the caller, observable problem, accepted behavior and constraints. Separate accepted requirements, assumptions and unresolved decisions. The current implementation and a reviewer's preference are not requirements. Reopen an accepted decision only when concrete evidence shows it cannot hold.
 
 ## Follow the operation through its lifecycle
 
-Trace a real operation from its UI, CLI or machine entry through input/contracts, authoritative state and side effects, response/events, consumer recovery and the observable result. Use the layers the change actually has. At least explain the successful path.
+Trace an input or trigger through the changed contracts, transformations, relevant state or side effects, and consumers to the delivery's observable result. This may be an interaction, library call, compilation, batch job, data transformation or infrastructure change. Use the stages the change actually has; a pure function needs no invented service lifecycle. At least explain the successful path.
 
 For each important state, identify its writer, identity, ordering, storage, propagation and terminal state. Check cancellation, retries after lost responses, concurrent or late writes, and restart/disconnection recovery when the accepted behavior or reachable code makes them relevant. Confirm that success means the stage actually completed, and that consumers have the information needed for their next action.
 

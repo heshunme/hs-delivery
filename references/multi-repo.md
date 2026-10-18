@@ -57,6 +57,12 @@ the shared accepted plan, its unit's write boundary, and the other pinned versio
 affect its contract. Independent repository checks do not establish cross-repository
 behavior.
 
+Declare review units and interaction coverage before review dispatch, following
+[severity and convergence](review-policy.md#bound-the-review-cycle). A repository is not
+automatically a review unit; related repositories may share one unit, while independently
+assessable deliverables can have distinct finite budgets. Record how their integration is
+covered without resetting consumed rounds when a candidate moves between repositories.
+
 Separate:
 
 1. per-repository build, test and review;

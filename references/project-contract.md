@@ -8,10 +8,10 @@ Recover these facts for the current task:
 |---|---|
 | Context | Planning index, accepted decisions, design principles, current task record |
 | Checks | Cheap iteration checks, full gates, hook coverage, conditional lanes/platforms, relevant commands |
-| Review | Review method, additional blocker conditions, major/minor treatment, repair rechecks, finite round budget and any separate text audit |
+| Review | Review method, unit boundaries, additional blocker conditions, major/minor treatment, repair rechecks, finite round budget and any separate text audit |
 | Environment | Isolation recipe, data/device limits, shared resource locks and test prerequisites |
 | Records | Task root, evidence locations, private/public boundaries, existing finding or flaky-test log |
-| Publication | PR conventions, permitted delivery endpoint and applicable authorization sources |
+| Publication | Applicable PR/MR, artifact or rollout conventions, permitted delivery endpoint and authorization sources |
 | Host setup | Loaded project instruction source, local setup receipt and supported completion/resumption path |
 
 Use repository instructions and actual scripts to establish check coverage. Another project's hook behavior, platform matrix, retry allowance, commit style or permission grant does not carry over.
@@ -30,9 +30,9 @@ Use these fallbacks when no established project or user policy provides a differ
 | Severity | Use the [blocker/major/minor baseline](review-policy.md); confirmed blockers must be resolved. List project-added blocker conditions or explicitly state none. |
 | Major/minor treatment | No automatic repair; the coordinator selects worthwhile in-scope fixes or records acceptance/deferment with rationale. A project may require particular classes to be fixed. |
 | Repair rechecks | Blocker fixes get targeted independent review/retest; selected major/minor fixes get writer verification. The project may choose writer verification only or independent recheck for either severity. Every implemented fix needs verification evidence. |
-| Review budget | Three code-review rounds: initial full review plus at most two incremental rechecks. The project may choose another finite budget. Retain the escalation and completion rules. |
-| Comment/documentation audit | Inspect changed and invalidated explanatory text. A separate fresh audit is used when project policy or the change warrants it; resolve whether this project requires it for every PR and at what point. |
-| UI preview | Retain before/after evidence for visible UI changes, using the project's available preview method. Record a different project policy or inapplicability explicitly. |
+| Review units and budget | Three code-review rounds per predeclared unit: initial full review plus at most two incremental rechecks. The task records boundaries, interactions and counts; the project may choose another finite budget. Retain the escalation and completion rules. |
+| Comment/documentation audit | Inspect changed and invalidated explanatory text. Resolve when a separate independent audit is required, such as every PR/MR, release or specified change class, and its scope and execution point. |
+| Change presentation | For changes people must assess, retain a concise comparison or demonstration appropriate to the audience: UI views/interactions, CLI output, API examples or an infrastructure plan. The project chooses triggers, format and evidence location. For a new capability without a prior baseline, show its outcome without fabricating a before state. |
 | Checks and acceptance | Derive actual commands, hook coverage, conditional platforms, host acceptance and isolation from project sources. Unknown commands or required environments remain gaps, not invented defaults. |
 | Verification budget | Use [verification guidance](verification.md), including evidence reuse and bounded failure diagnosis. Record any project lock, retry rule or hook exemption; absent an exemption, preserve hooks. |
 | Endpoint and authority | Name the requested endpoint and existing grants, or none established. No publication, merge, release or deployment authority comes from this template. |
@@ -43,7 +43,7 @@ For every applicable item record its resolved value and source as inherited, def
 
 Use [the starter template](../assets/delivery.md) to draft a project's `.delivery/delivery.md`. It is human-readable Markdown, not a script configuration schema. Fill it from actual repository instructions, scripts and established decisions. Resolve applicable behavior using the table above; remove irrelevant scaffolding only after recording why it does not apply. Missing facts stay explicit with their impact and next owner instead of becoming invented commands or passing checks.
 
-Keep stable project conventions here: context links, supported environments, check coverage and triggers, review/acceptance requirements, record locations and publication rules. Current candidate SHAs, participant IDs, pending findings, observer state and test results belong in task records. Machine-local skill/interpreter paths, setup changes and host-loading observations belong in `.delivery/setup.md` or an equivalent local receipt; recipient and observer bindings remain task-local. A shared project contract links these records without duplicating their current contents.
+Keep stable project conventions here: context links, supported environments, check coverage and triggers, review/acceptance requirements, record locations and publication rules. Current candidate identities, review units and counts, participant IDs, pending findings, observer state and test results belong in task records. Machine-local skill/interpreter paths, setup changes and host-loading observations belong in `.delivery/setup.md` or an equivalent local receipt; recipient and observer bindings remain task-local. The project contract links these records without duplicating their current contents. The default `.delivery/` records remain local and private, excluded through Git's local exclude file; setup does not introduce shared or tracked delivery records.
 
 Relative paths in `.delivery/delivery.md` are resolved from that file's directory. Use `../AGENTS.md` to refer to root instructions; paths shown as `<repo>/...` identify the repository root explicitly. Project grants may be linked with their scope and conditions; a template or blank authorization slot supplies no permission.
 

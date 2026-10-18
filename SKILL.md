@@ -5,7 +5,7 @@ description: Coordinate software delivery across implementation, independent rev
 
 # HS Delivery
 
-Keep the accepted task, implementation, findings and validation tied to the same scope and code version. Scale the workflow to the work; brief repairs can remain in one session. User instructions and applicable repository rules govern.
+Keep the accepted task, implementation, findings and validation tied to the same scope and candidate inputs. Scale the workflow to the work; brief repairs can remain in one session. User instructions and applicable repository rules govern.
 
 ## Establish the project and task
 
@@ -34,7 +34,7 @@ On compaction or resumption, reload this skill and the active task card before a
 
 ## Assign ownership and preserve independence
 
-For substantial complete delivery, identify the code writer, independent reviewer, expensive-verification owner and closeout owner, along with the delivery endpoint. Roles may share a session where independence is not needed. Full delivery normally includes independent code review; disclose a gap if host capabilities or task restrictions prevent it, and continue unblocked work.
+For substantial complete delivery, identify the writer, independent reviewer, expensive-verification owner and closeout owner, along with the delivery endpoint: a local result, PR/MR, merge, versioned artifact, release or deployment stage as applicable. Roles may share a session where independence is not needed. Full delivery normally includes independent review; disclose a gap if host capabilities or task restrictions prevent it, and continue unblocked work.
 
 Before creating participants, read [session handoffs](references/session-handoff.md) and the applicable [Codex/Paseo](references/hosts/codex-paseo.md) or [Claude Code](references/hosts/claude-code.md) reference. Use the tools actually available. Give a reviewer fresh context containing the goal, accepted decisions, repository rules, candidate version and necessary artifacts rather than the implementer's full conversation.
 
@@ -46,7 +46,7 @@ Set explicit checkpoints when feedback must precede a design-dependent or expens
 
 ## Maintain a small durable record
 
-Continue an existing task record. When work spans stages or sessions and has no established record, use `.delivery/runs/<task>/task.md` in the target project. Resolve `<skill>`, `<repo>`, `<task-dir>` and output paths to actual absolute locations in assignments; ignored project files may be absent from worktrees.
+Continue an existing task record. When work spans stages or sessions and has no established record, use `.delivery/runs/<task>/task.md` in the target project. Default `.delivery/` records are local and private; setup uses Git's local exclusion, preserving existing record conventions. Resolve `<skill>`, `<repo>`, `<task-dir>` and output paths to actual absolute locations in assignments; ignored project files may be absent from worktrees.
 
 Follow [task records](references/task-record.md): a short current card at the top, then append-only history and links. Replace the card through `scripts/task_card.py`; contributors write their own immutable results. Keep original failures and add fix/retest evidence with its actual version.
 
@@ -56,13 +56,13 @@ Report material findings, decisions, progress and blockers. Empty callbacks need
 
 ## Choose acceptance and checks before expensive work
 
-For a substantial behavior change, define meaningful user scenarios early. Tie each to its fixture, environment, interaction path, observable outcome and existing or missing evidence. Judge coverage by the affected behavior chain, including host/platform combinations, rather than test counts.
+For a substantial behavior change, define meaningful usage or execution scenarios early. Tie each to relevant inputs/fixtures, environment, trigger-to-result path, observable outcome and existing or missing evidence. Judge coverage by the affected behavior chain, including applicable host/platform combinations, rather than test counts. Choose automation and presentation evidence proportionately using the [acceptance template](references/templates/acceptance.md).
 
 Recover the project's required gates and conditional platform checks at kickoff; revise applicability if scope changes. Record the owner and execution point. Probe needed local capability cheaply before declaring an environment unavailable. Required but unexecuted acceptance stays visible with a next owner.
 
 Use the [verification budget](references/verification.md) to avoid duplicate full runs on the same inputs. Preserve required hooks and checks; project-specific commands and exemptions belong to the project contract. A skill-only edit needs relevant loading, structural and helper checks, scaled to the changes.
 
-Reuse evidence only when its covered behavior and relevant inputs remain unchanged. Record the original tested version and why it still applies. A passing rerun alone does not explain an earlier failure.
+Reuse evidence only when its covered behavior and [relevant candidate inputs](references/task-record.md#candidate-inputs-and-retention) remain unchanged, including configuration, data or actual artifacts when material. Record the original tested version and why it still applies. A passing rerun alone does not explain an earlier failure.
 
 ## Carry findings through fixes
 
@@ -70,9 +70,9 @@ Give each finding a stable ID, observed version, triggering scenario, expected/a
 
 Use [finding severity and review convergence](references/review-policy.md). Confirmed blockers must be resolved; major/minor repair choices and whether fixes need independent rechecks follow project policy. Every finding needs a disposition; accepting or deferring an unresolved blocker does not complete the delivery. Keep missing evidence distinct from a proven defect and retain corrections without silently rewriting history.
 
-Default to one full review and at most two incremental rechecks. Preserve the consumed budget across participants and sessions. Close review when blockers are resolved, project-required rechecks/checks hold and other findings have permitted dispositions; suggestions alone do not require more work. At the limit, stop automatic repair/review dispatch and reconcile remaining requirements with the maintainer. Budget exhaustion is not success.
+Default to one full review and at most two incremental rechecks per predeclared review unit. Establish unit scope and interaction coverage before dispatch; preserve consumed budgets across participants and sessions, without resets through renaming or retroactive splitting. Close review when blockers are resolved, project-required rechecks/checks hold and other findings have permitted dispositions; suggestions alone do not require more work. At the limit, stop automatic repair/review dispatch for that unit and reconcile remaining requirements with the maintainer. Budget exhaustion is not success.
 
-Before publication, inspect changed comments, test names and documentation for accuracy and private planning vocabulary. Use the [comment-audit template](references/templates/comment-audit.md) for a focused pass when the project requires it or the change warrants one; a separate audit for every PR is a project policy.
+Before publication, inspect changed comments, test names and documentation for accuracy and private planning vocabulary. Use the [comment-audit template](references/templates/comment-audit.md) for a focused pass when the project requires it or the change warrants one; a separate audit's triggers, independence, scope and execution point are project policy.
 
 ## Wait through the host's supported completion path
 
@@ -84,8 +84,8 @@ The same applies to any wait longer than a few minutes. On a host without comple
 
 ## Reconcile the endpoint
 
-Before claiming completion, follow [closeout](references/closeout.md) to compare the candidate and working tree with review coverage, finding dispositions, applicable checks, CI and actual acceptance. Distinguish local completion, a reviewable PR and merge readiness. State any remaining requirement and owner. For multiple PRs, validate the actual merge order and recheck remaining candidates as their base changes.
+Before claiming completion, follow [closeout](references/closeout.md) to compare the candidate with review coverage, finding dispositions, applicable checks, CI and actual acceptance. Distinguish the authorized endpoint from later publication or rollout stages. State any remaining requirement and owner. For multiple PRs/MRs, validate the actual merge order and recheck remaining candidates as their base changes.
 
 When merging is authorized, initial review and the project's repair recheck policy must be satisfied for the current candidate, all confirmed blockers resolved, required checks passed on applicable inputs, and other findings disposed of. No merge-blocking maintainer decision or hold may remain. Report actual reviewed versions and any fixes verified without independent recheck. Use an exact-head guard where the platform provides one. A successful observer result applies only to its pinned inputs.
 
-Preserve necessary evidence, reconcile owned observers and host resources, dispose of inbox results and close registered inboxes. Run `scripts/task_card.py check --task-dir <task-dir> --repo <repo>` to inspect record debts; for a multi-repository task, run it separately for every independent Git repository and reconcile the candidate set as described in the multi-repository reference. Then use host tools for processes and background tasks. Inspection errors or unknown checkout state require reconciliation; an empty or incomplete report is not a successful gate. A disappeared process proves cleanup rather than a successful check. Set the task card to `Status: closed` last, and reclaim only task-owned execution resources whose needed evidence is retained.
+Preserve necessary evidence, reconcile owned observers and host resources, dispose of inbox results and close registered inboxes. For Git-backed inputs, run `scripts/task_card.py check --task-dir <task-dir> --repo <repo>` to inspect record debts, separately for every independent repository in a multi-repository task. Reconcile non-Git inputs and resources directly; the Git helper does not validate them. Then use host tools for processes and background tasks. Inspection errors or unknown checkout state require reconciliation; an empty or incomplete report is not a successful gate. A disappeared process proves cleanup rather than a successful check. Set the task card to `Status: closed` last, and reclaim only task-owned execution resources whose needed evidence is retained.

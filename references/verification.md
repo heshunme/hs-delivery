@@ -16,7 +16,7 @@ When several branches contribute to one delivery, plan which full checks can run
 
 1. During iteration, use checks that answer the current uncertainty: affected tests, relevant static checks and package/type checks where applicable.
 2. Run each required full gate once on the stable candidate, accounting for gates already run by hooks. Add the conditional lanes the change touches.
-3. Reuse a passing result for unchanged relevant inputs. A rebase to an identical tree or a message-only amendment may reuse evidence; record the original tested SHA and rationale.
+3. Reuse a passing result for unchanged [relevant inputs](task-record.md#candidate-inputs-and-retention), including configuration, data, dependencies and artifacts when material. A rebase to an identical tree or a message-only amendment may reuse evidence; record the original tested identity and rationale. An unchanged SHA does not establish that other inputs stayed the same.
 4. For a later delta, assess which behavior, dependencies and environments it can affect. Run the required and affected checks. Documentation-only work may still have build or link checks.
 5. Preserve required hooks. Use an exemption only when the target project or user explicitly supplies it, including any replacement checks it requires.
 

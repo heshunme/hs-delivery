@@ -2,8 +2,9 @@
 
 - Delivery ID: `<task>.comment-audit.r<n>`
 - From: coordinator. To: auditor with fresh context. An agent handoff within the existing authorized task.
-- Candidate: `<full sha>` in `<worktree>`, compared with `<base full sha>`.
+- Candidate: `<actual source/artifact identity and relevant inputs>` in `<location>`, compared with `<actual base; full SHAs for Git>`.
 - Rules: `<project comment, naming and public/private conventions>`.
+- Audit trigger and checkpoint: `<project's PR/MR, release or change-class requirement; scope and execution point>`.
 - Finding policy: `<absolute skill path>/references/review-policy.md`; `<project additions and treatment policy>`.
 
 ## Scope

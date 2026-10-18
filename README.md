@@ -6,7 +6,9 @@ The repository root is the skill directory: start at [SKILL.md](SKILL.md). The p
 
 The project convention entry point is `.delivery/delivery.md`; the fallback task record is `.delivery/runs/<task>/task.md`. A [starter delivery.md](assets/delivery.md) describes the expected project-specific content, and a [local setup receipt](assets/setup.md) records destination-machine integration separately. Existing equivalent project structures can be retained.
 
-The skill includes a [general review method](references/review-method.md) and [severity/convergence rules](references/review-policy.md). Confirmed blockers must be resolved; projects choose major/minor treatment and whether repairs need independent rechecks. The default budget is one full review plus at most two incremental rechecks, retained across sessions. Exhausting it with unresolved requirements stops automatic repair/review dispatch for reconciliation rather than approving the delivery.
+The skill includes a [general review method](references/review-method.md) and [severity/convergence rules](references/review-policy.md). Confirmed blockers must be resolved; projects choose major/minor treatment and whether repairs need independent rechecks. The default budget is one full review plus at most two incremental rechecks per predeclared review unit, retained across sessions. Exhausting it with unresolved requirements stops automatic repair/review dispatch for that unit; renaming or retroactive splitting cannot reset it.
+
+Review covers the whole assigned change using methods suited to code, generated output and non-text artifacts. Acceptance traces the relevant input-to-result path, with automation chosen for repetition, risk and cost. Candidate identity includes relevant configuration, data and artifact versions as well as source revisions. The task chooses its actual endpoint, including local results, PRs/MRs, artifacts or deployment stages; each keeps its applicable checks and authorization.
 
 ## Use on another machine
 

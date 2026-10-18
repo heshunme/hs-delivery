@@ -18,6 +18,10 @@ Use a disposable project/task and the actual installed skill. Record machine/OS,
 | Finding treatment | A minor-only review does not automatically launch repairs; a proven blocker cannot be deferred while claiming completion; missing evidence stays distinct from a proven defect |
 | Project repair policy | A verified blocker fix under an explicit writer-verification-only policy does not force independent recheck, and the final record preserves the earlier reviewed SHA and unreviewed fix delta |
 | Review convergence | Incremental rounds preserve prior dispositions and scope. A third completed round with unresolved blockers stops automatic repair/review dispatch, reports progress and next owner, and does not claim success or reset on resumption |
+| Review units | Predeclared independent units keep separate finite budgets and explicit interaction coverage; an exhausted unit cannot acquire more rounds through renaming or a retroactive split |
+| Mixed artifacts | Review accounts for handwritten, generated and non-text changes with suitable methods and disclosed limits; acceptance uses actual trigger-to-result paths without requiring absent UI/service layers |
+| Acceptance proportionality | A one-off observable check can remain manual with evidence; worthwhile automation batches actions. Measurements preserve relevant conditions without requiring unrelated UI/network fields |
+| Candidate and endpoint | Changed configuration/data/artifacts prompt evidence reassessment even at the same SHA; the recorded endpoint may be a PR/MR, artifact or deployment stage and does not imply authority for later stages |
 | Busy feedback | Feedback follows the host's supported path without replacing useful work; a feedback-dependent step waits at the named checkpoint |
 | Completion while idle | The chosen supported path wakes the coordinator, or the recorded explicit-resumption path is used; no unsupported automatic wakeup is claimed |
 | Background success/failure | An authorized long command or existing CI wait retains its actual exit, candidate/run identity and log; the callback leads to correct reconciliation |

@@ -5,8 +5,8 @@
 
 ## Candidate and environment
 
-- Candidate: `<actual full sha and local inputs>`, built with `<method>`.
-- Environment: `<platform, devices, route, isolated profile/home/ports>`.
+- Candidate: `<source/artifact identity, relevant config/data/dependencies and local changes; full sha for Git>`, prepared with `<method>`.
+- Environment: `<conditions relevant to the scenarios; platform, device, route or isolation as applicable>`.
 - Existing scripts and SOPs: `<paths>`.
 - Write/data boundaries: `<fixtures and evidence allowed; resources to preserve>`.
 - Shared bottlenecks and execution coordination: `<owner, isolation or actual lock>`.
@@ -16,11 +16,13 @@
 
 <Meaningful scenarios, each with fixture identity/state, actions, observable result, pass condition and existing evidence. Include the host/platform combination the changed chain actually needs.>
 
-For repeatable scenarios that can be scripted, run the actions, condition-based waits with hang deadlines and assertions in one command, then inspect its result. Do not drive those scenarios one click, sleep and screenshot per model turn. Use manual observation when the scenario requires it and explain what the script cannot establish. Screenshots support visual claims, including before/after previews required by project policy.
+Choose automation based on expected repetition, error risk, existing tooling and setup/maintenance cost. Technical scriptability alone does not require a new script; a one-off manual check may be sufficient with explicit steps, observations and limits. When automation is worthwhile, batch actions, condition-based waits with hang deadlines and assertions into a bounded command, then inspect its result instead of driving each action and sleep in separate model turns. Use human observation for claims automation does not establish.
 
-For measurements, retain sample count and each sample's relevant conditions: actual host/route, build and module graph, realistic fixture/data shape, shared bottlenecks, and timing boundaries. Record window visibility/focus when it affects UI timing. Repeated-character data is not representative evidence for compression or transfer performance unless that is the intended workload. Serialize runs sharing a bottleneck and separate queue time from execution time when interpreting results.
+Follow the project's change-presentation policy with evidence suited to its audience: UI views/interactions, CLI output, API examples, artifact comparisons or an infrastructure plan. Compare before/after when a meaningful baseline exists; demonstrate a new capability without inventing one. Presentation evidence supports its specific claims and does not replace required checks.
 
-Keep the tested inputs stable and identify the actual full SHA plus local changes. Reuse applicable earlier evidence with its original version and rationale. Classify failures before rerunning; a passing rerun does not explain the first failure. Respect shared-cache/resource ownership even when no product files are edited. Report unexecuted scenarios and unsupported environments explicitly rather than counting them as passed.
+For measurements, retain sample count, method/boundaries and the inputs/environment that affect the quantity measured. Select relevant conditions: route for network measurements, build/dependency graph for build or startup costs, window visibility/focus for affected UI timing, or realistic data shape for data workloads. Repeated-character data is not representative of compression or transfer workloads unless that is the intended workload. Record and serialize shared bottlenecks when present; separate queue time from execution time when interpreting results. Do not require irrelevant environment fields merely to fill a checklist.
+
+Keep tested inputs stable and identify the actual candidate and its relevant inputs, including full SHA/local changes for Git-backed code. An unchanged SHA is insufficient when a relevant configuration, dataset, dependency or artifact changed. Reuse applicable earlier evidence with its original version and rationale. Classify failures before rerunning; a passing rerun does not explain the first failure. Respect shared-cache/resource ownership even when no product files are edited. Report unexecuted scenarios and unsupported environments explicitly rather than counting them as passed.
 
 ## Result and return
 
