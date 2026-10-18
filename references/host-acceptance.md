@@ -7,6 +7,7 @@ Use a disposable project/task and the actual installed skill. Record machine/OS,
 | Scenario | Observable acceptance |
 |---|---|
 | Missing or partial setup | Invocation first inspects without writing and previews concrete changes; declined/pending confirmation leaves setup unchanged, while approved setup preserves equivalent records and existing rules |
+| Delivery policy setup | Derivable facts are recovered first; unresolved behavior choices are presented together with defaults/effects. Applicable choices have values/sources or remain pending with impact/owner. Installed tools do not imply policy completion |
 | Local exclusion and worktrees | The actual Git exclusion path is resolved, artifacts are effectively ignored, `.gitignore` is unchanged, tracked artifacts remain tracked and linked-worktree scope is reported |
 | Python capability selection | Markdown/core use installs no unnecessary packages; any selected queue environment matches requirements and all relevant launchers use its explicit interpreter; unavailable capabilities stay visible |
 | Repeat setup or partial failure | A second adoption reuses complete setup; only relevant gaps are proposed, completed steps are recorded and repair/removal touches only setup-owned changes |
@@ -14,6 +15,9 @@ Use a disposable project/task and the actual installed skill. Record machine/OS,
 | Compaction/resume | In the first useful actions after each tested transition, the coordinator reloads the skill and current card, retaining the actual candidate, pending work and scope |
 | Task selection and execution context | Multiple tasks do not cause newest-card selection; subdirectory/worktree entry resolves the intended task, paused work stays paused and subagent loading is checked separately when used |
 | One work round | A writer returns immutable versioned evidence; an independent reviewer inspects the actual candidate and its result reaches the assigned coordinator |
+| Finding treatment | A minor-only review does not automatically launch repairs; a proven blocker cannot be deferred while claiming completion; missing evidence stays distinct from a proven defect |
+| Project repair policy | A verified blocker fix under an explicit writer-verification-only policy does not force independent recheck, and the final record preserves the earlier reviewed SHA and unreviewed fix delta |
+| Review convergence | Incremental rounds preserve prior dispositions and scope. A third completed round with unresolved blockers stops automatic repair/review dispatch, reports progress and next owner, and does not claim success or reset on resumption |
 | Busy feedback | Feedback follows the host's supported path without replacing useful work; a feedback-dependent step waits at the named checkpoint |
 | Completion while idle | The chosen supported path wakes the coordinator, or the recorded explicit-resumption path is used; no unsupported automatic wakeup is claimed |
 | Background success/failure | An authorized long command or existing CI wait retains its actual exit, candidate/run identity and log; the callback leads to correct reconciliation |

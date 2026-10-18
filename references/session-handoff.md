@@ -8,6 +8,8 @@ Identify the coordinator's host and check which session-creation, status/activit
 
 Create only the roles needed for the task, or explicitly bind an existing participant assigned to it. Write each assignment from the [templates](assignments.md). At creation, give each participant the actual goal, accepted decisions, repository guidance, candidate base/version, working directory, write boundary, completion condition, result location and next consumer. A bootstrap READY exchange is unnecessary for ordinary work. Participants inherit the task's scope, not authority to expand it or enroll unrelated sessions. The coordinator remains responsible for the user-facing conclusion.
 
+Carry the resolved finding-treatment/recheck policy and used/maximum review rounds into each assignment. A result is input to coordinator reconciliation, not an instruction to fix every finding or dispatch another review. At an exhausted budget or unresolved contradictory advice, return the decision to the maintainer with the remaining requirements instead of replacing participants to continue the same loop.
+
 If feedback must precede the next design-dependent or expensive step, name that checkpoint in the assignment. The participant publishes its stage result, states the next action, and ends that turn so pending feedback can reach it. At other useful boundaries, read shared task updates and continue ordinary implementation. Routine handoffs should not require canceling the worker; the host reference says how feedback reaches a busy participant.
 
 Give an independent reviewer only the context needed to assess the change; use a fresh context rather than the implementer's full transcript where supported. Keep product-code writes with the designated implementer. Reviewer-owned findings and acceptance-owned evidence may be written separately. Dispatch review when the candidate is sufficiently stable to inspect, preferably before the first publication; review may overlap verification, but later edits require an impact assessment against the reviewed version.
@@ -15,6 +17,8 @@ Give an independent reviewer only the context needed to assess the change; use a
 Focused tests can write shared build or test caches even when the reviewer does not edit source. Serialize commands sharing those caches with the verification owner, or establish separate inputs and caches before running them in parallel. Another worktree alone does not prove cache isolation; ordinary file inspection can continue alongside tests.
 
 Session creation and routine follow-ups inside the authorized task do not require repeated confirmation.
+
+Before a long idle period or the maintainer's departure, consolidate pending decisions with full options, recommendation, dependent work and a short reply format. Scheduling-only choices become stated defaults the maintainer may veto. If the host binds workers or observers to the current session, identify what is still running and what exit would interrupt; preserve artifacts and name the recovery owner before relying on later continuation.
 
 ## Bind the task and recipient
 

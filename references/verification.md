@@ -8,6 +8,10 @@ Read applicable repository guidance and scripts. Identify cheap iteration checks
 
 For substantial changes, assign one expensive-verification owner and execution point. Serialize work sharing mutable inputs, caches or bottlenecks. Separate worktrees alone do not establish cache or machine isolation. Use the project's existing lock when appropriate; choose and record a task lock only when one is needed.
 
+Check the actual tool scan roots: a nested worktree can enter its parent's lint, test or file scans even when Git considers it separate. Before parallel execution, establish exclusions or use a task-owned location outside those scans without weakening repository guards. Separate scheduling/lock wait from execution time when interpreting measurements.
+
+When several branches contribute to one delivery, plan which full checks can run once on a stable combined candidate rather than once per branch per checkpoint and again after integration. Preserve required per-branch/PR gates, platform checks and evidence for the actual versions that will ship. Combination evidence does not automatically cover independently published branches; name the coverage and execution point before assigning commands.
+
 ## Budget per candidate
 
 1. During iteration, use checks that answer the current uncertainty: affected tests, relevant static checks and package/type checks where applicable.

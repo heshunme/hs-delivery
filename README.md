@@ -6,11 +6,15 @@ The repository root is the skill directory: start at [SKILL.md](SKILL.md). The p
 
 The project convention entry point is `.delivery/delivery.md`; the fallback task record is `.delivery/runs/<task>/task.md`. A [starter delivery.md](assets/delivery.md) describes the expected project-specific content, and a [local setup receipt](assets/setup.md) records destination-machine integration separately. Existing equivalent project structures can be retained.
 
+The skill includes a [general review method](references/review-method.md) and [severity/convergence rules](references/review-policy.md). Confirmed blockers must be resolved; projects choose major/minor treatment and whether repairs need independent rechecks. The default budget is one full review plus at most two incremental rechecks, retained across sessions. Exhausting it with unresolved requirements stops automatic repair/review dispatch for reconciliation rather than approving the delivery.
+
 ## Use on another machine
 
 Copy or clone this whole directory into the host's configured skill-discovery location, keeping the folder name `hs-delivery`. An existing checkout can also be linked there. Confirm actual discovery on the destination host; a skill checkout and the project using it are separate locations.
 
 For first use in a project, follow [project initialization and recovery](references/setup-and-recovery.md). Inspect existing infrastructure without writing, show the actual file/configuration changes and dependency needs, then obtain the user's confirmation before applying setup. The default layout contains `.delivery/delivery.md`, `.delivery/setup.md` and a `runs/` task root. Add a local Git exclusion for `/.delivery/` without editing `.gitignore`; retain existing rules and equivalent record locations. A consultation or brief task can use the Markdown workflow without creating persistent infrastructure.
+
+Setup also resolves delivery behavior: derive repository facts, inherit established decisions, then present missing policy choices with recommended defaults and effects. Record adopted defaults, project-specific choices and reasons for inapplicability. Pending items retain their impact and next owner. Delivery policy completion is separate from installation, instruction loading and recovery verification; blank fields do not turn off general rules or authorize external actions.
 
 After confirmation, adapt the [recovery instruction snippet](assets/recovery-instructions.md) for a project instruction source the actual harness loads. Project instructions, automatic memory and task cards serve different roles. Record the interpreter and integration details in the local receipt; distinguish configuration written, entry loaded and recovery verified. Live compaction/resume acceptance can remain visibly pending for the user's later trial. Setup creates no artificial active task or inbox and launches no workers.
 

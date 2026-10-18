@@ -8,7 +8,7 @@ Recover these facts for the current task:
 |---|---|
 | Context | Planning index, accepted decisions, design principles, current task record |
 | Checks | Cheap iteration checks, full gates, hook coverage, conditional lanes/platforms, relevant commands |
-| Review | Review guidance, required independence and any separate comment audit |
+| Review | Review method, additional blocker conditions, major/minor treatment, repair rechecks, finite round budget and any separate text audit |
 | Environment | Isolation recipe, data/device limits, shared resource locks and test prerequisites |
 | Records | Task root, evidence locations, private/public boundaries, existing finding or flaky-test log |
 | Publication | PR conventions, permitted delivery endpoint and applicable authorization sources |
@@ -16,11 +16,32 @@ Recover these facts for the current task:
 
 Use repository instructions and actual scripts to establish check coverage. Another project's hook behavior, platform matrix, retry allowance, commit style or permission grant does not carry over.
 
-For a project without conventions, make ordinary choices proportionate to the change and record the ones needed for continuity. Ask only about missing decisions that materially affect the authorized work. Keep an approval-dependent action pending while doing unblocked preparation.
+For a project without conventions, use the skill's general defaults rather than silently omitting behavior. Read existing rules and scripts before asking questions. Present unresolved policy choices together with recommendations and effects; do not ask users to rediscover commands or reconfirm settled decisions. Keep a dependent action pending while doing unblocked preparation.
+
+## Resolve delivery behavior
+
+Keep three layers distinct: the skill supplies a general method and defaults; project conventions supply concrete checks and policy choices; actual user/project grants authorize actions. A filled policy field does not create authority to publish or merge.
+
+Use these fallbacks when no established project or user policy provides a different choice. During initialization, show the applicable defaults in the proposed policy set so the user can retain or change them as a group.
+
+| Area | General default or required project fact |
+|---|---|
+| Review method and first review | Use the skill's [review method](review-method.md); substantial complete delivery includes independent initial review. Link additional project guidance. |
+| Severity | Use the [blocker/major/minor baseline](review-policy.md); confirmed blockers must be resolved. List project-added blocker conditions or explicitly state none. |
+| Major/minor treatment | No automatic repair; the coordinator selects worthwhile in-scope fixes or records acceptance/deferment with rationale. A project may require particular classes to be fixed. |
+| Repair rechecks | Blocker fixes get targeted independent review/retest; selected major/minor fixes get writer verification. The project may choose writer verification only or independent recheck for either severity. Every implemented fix needs verification evidence. |
+| Review budget | Three code-review rounds: initial full review plus at most two incremental rechecks. The project may choose another finite budget. Retain the escalation and completion rules. |
+| Comment/documentation audit | Inspect changed and invalidated explanatory text. A separate fresh audit is used when project policy or the change warrants it; resolve whether this project requires it for every PR and at what point. |
+| UI preview | Retain before/after evidence for visible UI changes, using the project's available preview method. Record a different project policy or inapplicability explicitly. |
+| Checks and acceptance | Derive actual commands, hook coverage, conditional platforms, host acceptance and isolation from project sources. Unknown commands or required environments remain gaps, not invented defaults. |
+| Verification budget | Use [verification guidance](verification.md), including evidence reuse and bounded failure diagnosis. Record any project lock, retry rule or hook exemption; absent an exemption, preserve hooks. |
+| Endpoint and authority | Name the requested endpoint and existing grants, or none established. No publication, merge, release or deployment authority comes from this template. |
+
+For every applicable item record its resolved value and source as inherited, default adopted or project-specific. Mark an item inapplicable with a reason. A pending choice must name the affected action and next owner; it cannot masquerade as an adopted default or completed policy setup. Routine task execution can use the general fallbacks without creating persistent infrastructure, but initialization must make their use explicit. Apply stricter existing repository requirements rather than letting a missing local setting erase them.
 
 ## Preparing delivery.md
 
-Use [the starter template](../assets/delivery.md) to draft a project's `.delivery/delivery.md`. It is human-readable Markdown, not a script configuration schema. Fill it from actual repository instructions, scripts and established decisions; remove irrelevant sections. Mark missing facts as unknown instead of inventing commands or treating an unconfigured check as passed.
+Use [the starter template](../assets/delivery.md) to draft a project's `.delivery/delivery.md`. It is human-readable Markdown, not a script configuration schema. Fill it from actual repository instructions, scripts and established decisions. Resolve applicable behavior using the table above; remove irrelevant scaffolding only after recording why it does not apply. Missing facts stay explicit with their impact and next owner instead of becoming invented commands or passing checks.
 
 Keep stable project conventions here: context links, supported environments, check coverage and triggers, review/acceptance requirements, record locations and publication rules. Current candidate SHAs, participant IDs, pending findings, observer state and test results belong in task records. Machine-local skill/interpreter paths, setup changes and host-loading observations belong in `.delivery/setup.md` or an equivalent local receipt; recipient and observer bindings remain task-local. A shared project contract links these records without duplicating their current contents.
 

@@ -12,11 +12,15 @@ Write every participant assignment from a template under `templates/`, filling i
 ## Filling a template
 
 - Point to the design, decisions and earlier results by path instead of pasting them. An assignment states scope, base, write boundary, checks, checkpoint and return; it is not where the coordinator restates the design.
-- Keep the templates' explicit verification, version and hand-back rules when substituting project commands. A link to the general skill alone does not carry those rules into a fresh worker's context.
+- Keep the templates' explicit severity, round-budget, verification, version and hand-back rules when substituting project commands. Supply the resolved project repair/recheck policy and used/maximum rounds. A link to the general skill alone does not carry those rules into a fresh worker's context.
 - Keep the **Return** variant that matches the participant and delete the other. Participants whose final message reaches the coordinator natively, Claude subagents and Codex built-in subagents, end with the hand-back trailer. Paseo-managed sessions publish through `queue_result.py` to the registered inbox. A native participant that publishes stage results and keeps working keeps both: the inbox for stages, the trailer for its final hand-back. The [Claude](hosts/claude-code.md) and [Codex](hosts/codex-paseo.md) host references say which applies.
 - Delivery IDs are filename-safe: letters, digits, `.`, `_` and `-`, no slashes.
 - Name the checkpoint at which the worker publishes and ends its turn whenever feedback must precede the next step. On Codex a queued message reaches a busy worker only when its turn ends, so a long round without checkpoints can only be interrupted, not corrected.
 - A later round for the same participant may be a short delta assignment linking its earlier one. A fresh or replacement participant receives the applicable template rules and accessible inputs again.
+
+Read [the review method](review-method.md) when assigning review and [severity and convergence](review-policy.md) before selecting repairs or another round. Dispatch only the selected findings; a reviewer report is not a blanket repair order. Later reviews cover the fixes, delta and affected interactions. Do not schedule a review solely because a new result arrived, a minor suggestion exists or a writer-verified repair satisfies project policy without independent recheck.
+
+Record each coordinated code-review round at dispatch. At the finite budget limit, reconcile remaining requirements before further automatic repair/review dispatch. Pass the existing count to replacement participants; a new session does not begin a new budget.
 
 ## Hand-backs
 

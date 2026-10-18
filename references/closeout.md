@@ -6,11 +6,12 @@ Read this when a reviewed candidate changes, when preparing publication/merge or
 
 Record the independent review's actual full SHA and relevant local inputs. Compare them with the current candidate and inspect the full delta, including changed dependencies, generated files and executable tests.
 
-- **Code or behavior changes:** obtain an independent review of the delta and its interaction with the previously reviewed code. A coordinator's assessment or a passing retest alone does not extend independent code-review coverage.
+- **Selected finding repairs:** apply the resolved project policy from [severity and convergence](review-policy.md#decide-treatment-before-dispatch). A fix always needs verification; independent recheck is required only when that policy requires it. Record the finding IDs, fix version, verification and policy source. A writer-verified fix may meet project completion conditions without extending the independent review's actual SHA.
+- **Other code or behavior changes:** obtain independent assessment of the delta and its interaction with previously reviewed code. Do not hide new features, unrelated edits or substantive conflict resolutions inside a repair exemption. Use the remaining review budget; at its limit, reconcile with the maintainer before dispatching more work.
 - **Comments, test names, documentation or commit-message changes only:** the coordinator may carry review forward after checking that behavior and relevant build inputs are unchanged. A compiler directive inside a comment, an executable documentation change or an altered test assertion does not qualify merely because of its file or label.
 - **Rebase to an identical tree:** retain the original reviewed version and record the tree equivalence. Reassess evidence that also depends on commit metadata or the comparison base.
 
-Record the old/new versions, the inspected delta and the reason for carry-forward or renewed review. Preserve each finding's disposition and return affected fixes for independent review/retest. Review may cover a delta rather than repeat the entire branch, but its conclusion must identify the resulting candidate it covers.
+Record the old/new versions, the inspected delta and the reason for carry-forward, policy-permitted verification without recheck, or renewed review. Preserve each finding's disposition. Independent review may cover a delta rather than repeat the entire branch, but its conclusion must identify the resulting candidate it covers. Report unreviewed repair deltas explicitly; satisfying a repair policy does not turn them into independently reviewed code.
 
 ## Multiple PRs
 
@@ -30,15 +31,15 @@ Use this evidence at the authorized endpoint:
 |---|---|
 | Authority | Current applicable user/project grant, including conditions and expiry |
 | Candidate | Current full head and relevant working-tree state |
-| Review | Independent code review covering that head, with any allowed carry-forward rationale |
-| Findings | Each finding fixed/verified, accepted with rationale or deferred to a reachable follow-up; unresolved requirements visible |
+| Review | Initial independent review, actual reviewed version, later delta, and completion of the project's repair recheck policy or allowed carry-forward |
+| Findings | Every confirmed blocker resolved; major/minor findings disposed of under project policy; required evidence and decisions satisfied |
 | Checks | All required gates passed on applicable inputs, including manually triggered/platform checks outside aggregate CI |
 | Acceptance | Actual scenario coverage and limits, or an explicit authorized waiver/deferment where the task permits it |
 | Decisions | No merge-blocking maintainer decision or requested hold remains |
 
 Read fresh remote head/check state before a merge. Pin the assessed head through the platform's exact-head guard when available, such as GitHub's `--match-head-commit`. If the head moved, reconcile its delta before proceeding. A missing or failed requirement leaves merge readiness pending with an owner; creating a PR or finishing a waiting observer does not satisfy that requirement.
 
-An accepted limitation and a passed check are different claims. Keep an explicit waiver or narrower endpoint tied to its authorization; never relabel an unexecuted check as passed. Stop at local completion or a reviewable PR when that is the authorized endpoint.
+An accepted limitation and a passed check are different claims. A permitted waiver of an unexecuted check does not accept a confirmed blocker. Keep an explicit waiver or narrower endpoint tied to its authorization; never relabel an unexecuted check as passed or claim the same delivery complete with an unresolved blocker. Review-budget exhaustion is an escalation, not completion. Stop at local completion or a reviewable PR when that is the authorized endpoint, retaining remaining delivery requirements.
 
 ## Resources and final records
 

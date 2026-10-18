@@ -13,6 +13,9 @@
 - Write boundary: `<code checkout and result/evidence locations>`.
 - Project rules: `<applicable instructions and delivery/check guidance>`.
 - Shared state or combination risks: `<other work, mutable caches, resource owner, or none>`.
+- Finding treatment: `<selected IDs, confirmed severity, resolution criteria and explicit deferrals; no blanket fix-all>`.
+- Repair recheck policy: `<independent recheck or writer verification by severity; source>`.
+- Review budget: `<rounds used/finite limit; next authorized checkpoint>`.
 
 ## Checks and authority
 
@@ -27,7 +30,9 @@ Keep these rules when filling project-specific checks:
 - Classify a failure before rerunning: candidate defect, environment/tool failure or suspected flake. Preserve the failure and follow the project's bounded retry policy. A passing rerun alone does not establish a cause.
 - Preserve required hooks. Use a bypass only under an applicable existing exemption and perform its required replacement checks.
 - Read actual full SHAs from Git in this checkout. Identify staged, unstaged and relevant added inputs separately; a SHA with a dirty flag cannot reconstruct those inputs.
-- Stop at the named feedback checkpoint. Return affected fixes for independent review/retest; your own inspection does not extend independent review coverage to changed code.
+- Repair the assigned findings; do not automatically implement every review suggestion. Confirmed blockers must be resolved before completion; major/minor treatment follows project policy. Report new findings to the coordinator for disposition before expanding the repair scope.
+- Verify every fix against its resolution criterion. Return fixes for independent review/retest only as required by the supplied project policy. Writer verification does not extend the actual independently reviewed version.
+- Stop at the named feedback checkpoint. Do not start additional repair/review cycles or reset an exhausted budget; return remaining requirements for coordinator reconciliation.
 
 ## Checkpoint
 

@@ -18,6 +18,15 @@
 |---|---|---|
 | `<actual path>` | `<create, focused edit, append pattern or reuse>` | `<completed, unchanged, failed or pending; setup-owned edits only>` |
 
+## Delivery policy resolution
+
+- State: `<complete or pending; independent of installation/loading success>`.
+- Convention source: `<delivery.md or equivalent; link resolved values rather than duplicating them>`.
+- Decision basis: `<inherited rules, adopted defaults and explicit project choices; confirmation source>`.
+- Remaining gaps: `<policy/fact, action it affects, next owner; or none>`.
+
+Policy setup is complete only when applicable choices are resolved and sourced, with reasons for inapplicable items. Pending policy does not prevent unrelated preparation, but must remain visible even when host integration is complete.
+
 ## Local exclusion
 
 - Resolved exclusion file: `<absolute path, or unavailable>`.

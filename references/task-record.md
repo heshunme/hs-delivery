@@ -19,7 +19,8 @@ Status: active | paused | closed
 Goal: <one line, link to the plan>
 Stage: <current stage and the delivery endpoint>
 Candidate: <branch> @ <full sha> (+ <local changes>), or candidate set at <absolute path>
-Review: <covered full sha, independent reviewer, and any remaining delta>
+Review: <actual reviewed sha/reviewer; repair recheck policy and remaining or writer-verified delta>
+Rounds: <used/limit for this scope; round history and any extension decision>
 Owners: writer=<id>, reviewer=<id>, verification=<id>, closeout=<id>
 Expecting: <delivery IDs or background task IDs, each with its owner>
 Grants: <applicable project or task grant IDs, or none>
@@ -41,9 +42,10 @@ Capture enough for another session to continue without reconstructing the conver
 - **Goal and scope:** intended behavior, accepted plan, current stage, explicit exclusions and completion endpoint, such as local implementation, a reviewable PR, or an authorized merge.
 - **Decisions:** the decision, its reason, and the user message or evidence that established it; distinguish proposals from accepted choices.
 - **Version:** branch, comparison base, candidate HEAD and tree, plus any staged, unstaged, or relevant untracked inputs. For local-only work, identify the changed private files rather than implying HEAD captures them. For a task spanning independent repositories, follow [multi-repository delivery](multi-repo.md): link a small candidate set from the card and keep each repository, external input, review and check tied to its actual version.
-- **Responsibilities:** current code writer, independent reviewer, verification owner and closeout owner as applicable. Record the actual session mechanism, cwd and known session IDs; label the ID namespace, such as Paseo agent ID, native Codex thread ID, collaboration task path, Claude subagent ID or Claude background task ID. Unknown IDs remain unknown. Distinguish planned review from completed independent review and self-review, with the version covered.
+- **Responsibilities:** current code writer, independent reviewer, verification owner and closeout owner as applicable. Record the actual session mechanism, cwd and known session IDs; label the ID namespace, such as Paseo agent ID, native Codex thread ID, collaboration task path, Claude subagent ID or Claude background task ID. Unknown IDs remain unknown. Distinguish planned review, completed independent review and writer verification, with actual versions covered.
+- **Review policy and rounds:** resolved severity/treatment/recheck policy and its source, consumed/maximum rounds for the accepted scope, each round's candidate and findings added/resolved/remaining, and the next justified action. Record any extension decision; replacement, compaction and rebase do not reset the count. Reconstruct missing counts from assignments/results before dispatching, rather than treating them as zero.
 - **Acceptance and evidence:** meaningful scenarios, required checks and environments, execution owner and timing, status, tested version and evidence links. Determine conditional platform coverage from the project's rules; a focused job does not replace a broader required suite. Record failures, blocked checks and unexecuted cases explicitly. Existing evidence stays tied to its original version with any reuse rationale.
-- **Findings and next action:** links to findings, their disposition, the next responsible participant and any decision actually needed from the user. Give deferred findings a reachable follow-up, which may be a private record. If monitoring is paused at the user's request, record who will resume and what result needs reconciliation.
+- **Findings and next action:** links to findings, confirmed severity, treatment/recheck decisions and evidence, the next responsible participant and any decision actually needed from the user. Confirmed blockers must be resolved before delivery completion; permitted major/minor deferments need reachable follow-ups, which may be private records. If monitoring is paused at the user's request, record who will resume and what result needs reconciliation.
 - **Pending continuation, when used:** expected result, responsible participant and links to the registered inbox or observer binding. Keep message receipts and host resource state in those existing records. Waiting is pending work with an owner, not completed delivery; inspect the binding on resume.
 
 The coordinator owns the card and the history. Contributors write their own finding or evidence files, then the coordinator links the result. This avoids competing edits to one status document. Replace the card at meaningful handoffs, scope decisions, verification results, and closeout, not after every command.
@@ -74,11 +76,11 @@ At closeout, confirm no active participant/process still uses a task-owned tempo
 
 Use `<task-dir>/findings/<id>.md` when a finding needs a handoff. Include:
 
-1. A stable finding ID, author, observed version, affected behavior, and current disposition.
+1. A stable finding ID, author, observed version, affected behavior, proposed/confirmed severity and current disposition. Use the [severity baseline](review-policy.md); record pending evidence separately from confirmed defects.
 2. Preconditions: environment, fixture identity and state, and any relevant concurrent operation.
 3. Exact actions, expected result, actual result, and supporting logs, screenshots, tests, or code references. Distinguish reproduction from inference.
-4. Impact and reachability assessment, proposed action, and any accepted product decision.
-5. Resolution appended to the original observation: fix SHA or explicitly described local changes, retested scenarios, tested environment/version, results, remaining limits, and independent retest when available.
+4. Impact and reachability, requirement/source, resolution criterion, selected action and any accepted product decision. For a proposed blocker, explain which blocker condition holds; retain the coordinator's classification and treatment basis.
+5. Resolution appended to the original observation: fix SHA or explicitly described local changes, retested scenarios, tested environment/version, results, remaining limits, and the project's required recheck outcome or its policy permitting writer verification only.
 
 Keep evidence where the tool already saves it. Task-owned acceptance evidence can live at `<task-dir>/acceptance/evidence/`. References in the current record are enough; a second copy of every log is unnecessary.
 

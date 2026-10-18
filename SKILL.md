@@ -1,6 +1,6 @@
 ---
 name: hs-delivery
-description: Coordinate software delivery across implementation, independent review, acceptance and closeout, keeping task scope, code versions, findings and evidence aligned. Use for continuing a delivery plan or completing a milestone; preserve narrower planning, review-only and local-only requests.
+description: Coordinate software delivery across implementation, independent review, acceptance and closeout. Use only when the user explicitly requests hs-delivery or continues a task for which they have already chosen it. Ordinary planning, local edits, standalone code review, and discussion or modification of this skill do not by themselves invoke it.
 ---
 
 # HS Delivery
@@ -10,6 +10,8 @@ Keep the accepted task, implementation, findings and validation tied to the same
 ## Establish the project and task
 
 Resolve the target repository separately from this skill's installation. Read its applicable `AGENTS.md` or equivalent instructions, then its existing task or planning entry point. If present, read `.delivery/delivery.md` for project-specific delivery conventions. The [project contract](references/project-contract.md) describes the information to recover and links a starter template; an existing project structure can supply it without a new file.
+
+Apply the skill's general workflow defaults, recover project-specific choices, and record action authority separately. Missing project configuration does not remove the defaults or create a permission grant. During initialization, resolve delivery behavior as well as tool setup: derive existing facts first, then present unresolved policy choices with recommendations and their effects. Track pending choices without claiming policy setup complete.
 
 When project infrastructure is missing or incomplete, follow [setup and recovery](references/setup-and-recovery.md): inspect without writing, explain the concrete initialization changes and obtain the user's confirmation before applying them. Reuse equivalent existing infrastructure; skill invocation alone does not authorize setup, and consultation or a brief task need not create persistent records. Approval to update this skill package does not initialize its repository or any other project.
 
@@ -23,7 +25,7 @@ Choose the requested mode:
 
 - **Planning:** establish decisions and acceptance needs; commands in a plan do not start implementation.
 - **Implementation or repair:** complete the authorized scope, carrying accepted decisions forward.
-- **Review:** apply the project's review rules and preserve a review-only boundary. An explanatory walkthrough serves a different purpose from independent review.
+- **Review:** use the [review method](references/review-method.md) with the project's rules and preserve a review-only boundary. An explanatory walkthrough serves a different purpose from independent review.
 - **Acceptance or closeout:** reconcile the candidate version with evidence and findings, then finish the authorized endpoint.
 
 Derive commit, push, PR, merge, release and deployment authority from the user's request and applicable project grants. This skill grants none of those actions on its own and supplies no hook-bypass exemption. Record grants that later sessions need to recover in the [task record](references/task-record.md#authorizations).
@@ -36,7 +38,9 @@ For substantial complete delivery, identify the code writer, independent reviewe
 
 Before creating participants, read [session handoffs](references/session-handoff.md) and the applicable [Codex/Paseo](references/hosts/codex-paseo.md) or [Claude Code](references/hosts/claude-code.md) reference. Use the tools actually available. Give a reviewer fresh context containing the goal, accepted decisions, repository rules, candidate version and necessary artifacts rather than the implementer's full conversation.
 
-Write assignments from the [templates](references/assignments.md), retaining their explicit verification and hand-back rules when filling project parameters. Keep one code writer per checkout and one owner for expensive checks on shared resources. Review may overlap verification on stable inputs. Code changes after review need an independent delta review; the limited carry-forward cases are in [closeout](references/closeout.md#review-coverage). Reviewers report findings; the code writer makes fixes and returns affected findings for review or independent retest.
+Write assignments from the [templates](references/assignments.md), retaining their severity, review-budget, verification and hand-back rules when filling project parameters. Keep one code writer per checkout and one owner for expensive checks on shared resources. Review may overlap verification on stable inputs. The coordinator selects repairs after classifying findings; the writer verifies fixes and obtains the rechecks required by project policy. Apply [review coverage](references/closeout.md#review-coverage) to later changes without claiming unreviewed fixes were independently reviewed.
+
+Make routine design and implementation choices within accepted scope and record their basis. For a difficult in-scope trade-off, seek fresh independent advice before deciding; resolve conflicting advice rather than alternating implementations. Escalate reversals of accepted decisions, substantial scope or behavior changes, and consequential security, cost or external effects not already authorized.
 
 Set explicit checkpoints when feedback must precede a design-dependent or expensive next step. Replace a lost participant at a clear boundary and recover its artifacts before repeating work. Do not silently turn the coordinator's own inspection into independent review.
 
@@ -48,7 +52,7 @@ Follow [task records](references/task-record.md): a short current card at the to
 
 Collect results through the coordinator host's result path. Paseo-managed Codex participants publish to the [task inbox](references/result-inbox.md), whose default `codex-queue` transport wakes a waiting coordinator: active work accumulates results without queued turns; take and reconcile them at useful boundaries, then arm waiting before ending a turn. Claude and built-in Codex subagents return through their native hand-back; add an inbox only for publishers that outlive that hand-back, following the host reference. Claude uses `--transport harness` explicitly for that inbox. Verify artifact hashes and versions, reconcile results in batches, and record a disposition for each result actually handled.
 
-Report material findings, decisions, progress and blockers. Empty callbacks need no user-facing acknowledgment. If a maintainer decision remains, state its options, recommendation, what it blocks and a concise reply format in the current message. Routine choices within accepted scope remain with the responsible owner.
+Report material findings, decisions, progress and blockers. Empty callbacks need no user-facing acknowledgment. In each handoff needing a maintainer decision, restate all pending choices with their options, recommendation, what they block and a concise reply format. Before the maintainer steps away or a long idle period, collect those questions together; turn scheduling-only questions into stated defaults the maintainer can veto. Explain which active participants depend on the session staying open, and record the recovery owner when it will close.
 
 ## Choose acceptance and checks before expensive work
 
@@ -64,7 +68,9 @@ Reuse evidence only when its covered behavior and relevant inputs remain unchang
 
 Give each finding a stable ID, observed version, triggering scenario, expected/actual behavior and reproducible evidence. Distinguish reproduction from inference and preserve fixture differences that affect reachability.
 
-Give every finding an explicit disposition: fixed and verified, accepted with rationale, deferred with a reachable follow-up, or awaiting a decision/evidence. Severity informs the decision; it does not make it. Append corrections and superseding evidence without silently rewriting historical claims.
+Use [finding severity and review convergence](references/review-policy.md). Confirmed blockers must be resolved; major/minor repair choices and whether fixes need independent rechecks follow project policy. Every finding needs a disposition; accepting or deferring an unresolved blocker does not complete the delivery. Keep missing evidence distinct from a proven defect and retain corrections without silently rewriting history.
+
+Default to one full review and at most two incremental rechecks. Preserve the consumed budget across participants and sessions. Close review when blockers are resolved, project-required rechecks/checks hold and other findings have permitted dispositions; suggestions alone do not require more work. At the limit, stop automatic repair/review dispatch and reconcile remaining requirements with the maintainer. Budget exhaustion is not success.
 
 Before publication, inspect changed comments, test names and documentation for accuracy and private planning vocabulary. Use the [comment-audit template](references/templates/comment-audit.md) for a focused pass when the project requires it or the change warrants one; a separate audit for every PR is a project policy.
 
@@ -80,6 +86,6 @@ The same applies to any wait longer than a few minutes. On a host without comple
 
 Before claiming completion, follow [closeout](references/closeout.md) to compare the candidate and working tree with review coverage, finding dispositions, applicable checks, CI and actual acceptance. Distinguish local completion, a reviewable PR and merge readiness. State any remaining requirement and owner. For multiple PRs, validate the actual merge order and recheck remaining candidates as their base changes.
 
-When merging is authorized, independently reviewed code must cover the current head, all required checks must have passed on applicable inputs, findings must have dispositions and no merge-blocking maintainer decision or hold may remain. Use an exact-head guard where the platform provides one. Assess verification coverage for any delta. A successful observer result applies only to its pinned inputs.
+When merging is authorized, initial review and the project's repair recheck policy must be satisfied for the current candidate, all confirmed blockers resolved, required checks passed on applicable inputs, and other findings disposed of. No merge-blocking maintainer decision or hold may remain. Report actual reviewed versions and any fixes verified without independent recheck. Use an exact-head guard where the platform provides one. A successful observer result applies only to its pinned inputs.
 
 Preserve necessary evidence, reconcile owned observers and host resources, dispose of inbox results and close registered inboxes. Run `scripts/task_card.py check --task-dir <task-dir> --repo <repo>` to inspect record debts; for a multi-repository task, run it separately for every independent Git repository and reconcile the candidate set as described in the multi-repository reference. Then use host tools for processes and background tasks. Inspection errors or unknown checkout state require reconciliation; an empty or incomplete report is not a successful gate. A disappeared process proves cleanup rather than a successful check. Set the task card to `Status: closed` last, and reclaim only task-owned execution resources whose needed evidence is retained.

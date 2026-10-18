@@ -18,6 +18,14 @@ Participants in an existing delivery use the coordinator-provided accessible con
 
 For a task spanning independent repositories, follow [multi-repository delivery](multi-repo.md). Choose one accessible coordination repository or established record location for the shared convention and task record. Do not initialize `.delivery` in every member repository, and do not select a non-Git aggregate directory merely because it contains all checkouts. Each member still keeps and follows its own repository instructions.
 
+## Resolve project policy before calling setup complete
+
+Use the [project contract](project-contract.md#resolve-delivery-behavior) to inspect actual delivery rules as well as infrastructure. Read repository instructions, hooks, CI and existing decisions first. Fill derivable facts without asking the user to do that investigation. Inherit settled choices and grants with their sources; do not ask for their authorization again.
+
+Present the remaining choices in one compact proposal: the proposed value/default, how it changes delivery, and any unresolved requirement. Include additional blocker conditions, major/minor treatment, recheck requirements for repairs by severity, review-round budget, separate comment audit, UI preview, applicable checks/acceptance, and endpoint/authority. Keep universal resolution and evidence rules distinct from configurable choices. A missing project file does not turn off the skill's defaults.
+
+Resolve each applicable item as inherited, default adopted or project-specific; record inapplicability with a reason. Keep unresolved facts or choices pending with their dependent action and next owner. Do not call delivery policy complete while applicable decisions remain pending. Configuration and dependency installation may finish separately; unrelated work can proceed using established capabilities. Repeated setup asks only about relevant gaps or changed policies, not the whole questionnaire again.
+
 ## Show a concrete plan and obtain confirmation
 
 Before writing project files, exclusions, environments or host settings, show the actual intended changes. A useful preview contains:
@@ -25,6 +33,7 @@ Before writing project files, exclusions, environments or host settings, show th
 | Item | What the user reviews |
 |---|---|
 | Project files | Absolute paths, whether each file is new or edited, and the content or focused diff to apply |
+| Delivery behavior | Resolved policy values and sources, recommended defaults and effects, pending choices with their dependent actions and next owners |
 | Local exclusion | Resolved exclusion file, exact patterns and the scope across linked worktrees; `.gitignore` is left unchanged |
 | Python | Existing probe results, selected interpreter, whether an environment is created, package versions and any network download |
 | Host entry | Actual loaded instruction source, appended text, whether the file is tracked and whether a new session or host approval is needed |
@@ -38,7 +47,7 @@ The confirmed scope can include the required dependency installation; do not ask
 
 For a project choosing the default layout, create `.delivery/` and fill:
 
-- `.delivery/delivery.md` from [the project template](../assets/delivery.md), linking established instructions, checks and decisions. Keep unknown facts explicit and remove irrelevant fields.
+- `.delivery/delivery.md` from [the project template](../assets/delivery.md), linking established instructions, checks and decisions. Record the resolved policy set and remaining gaps, not just untouched template fields.
 - `.delivery/setup.md` from [the local setup template](../assets/setup.md), recording this machine's paths, capability choices, approved changes and verification state. This is an agent-readable receipt, not configuration parsed by helpers or a replacement for authorization sources.
 - `.delivery/runs/` as the task root, unless an existing task location is retained. Task directories and cards are created only for real tasks that need continuity.
 
@@ -107,7 +116,9 @@ Keep the entry outside the skill, project convention and task history: it must l
 
 ## Record and verify the result
 
-Update the local receipt after each completed setup step. Keep three separate statuses per host:
+Update the local receipt after each completed setup step. Record **delivery policy resolved** separately from host integration: link the agreed convention source and its confirmation or inherited authority, and list any pending policy gaps with their impact and owner. Installed dependencies and a loaded entry do not establish that delivery behavior has been settled.
+
+Keep three separate integration statuses per host:
 
 - **Configuration written:** the approved files, effective exclusion and relevant Python probes are checked. Existing repository rules remain intact.
 - **Entry loaded:** a fresh host session visibly receives the project pointer and resolves the intended skill and conventions. A file existing on disk is not evidence of loading.
@@ -128,7 +139,7 @@ Read the project's conventions and applicable repository rules, then reload this
 
 Match the current user request and known session/worktree assignment to the task's goal, endpoint and authorization before continuing. With multiple active cards, use their goals and linked plans; do not pick one merely because it is newest. If the mapping remains ambiguous, ask which task to resume before dependent action. `list` only finds immediate child records with a task card. An empty list does not prove that older, differently located or cardless project records are absent. Follow known task links before creating a card when one is needed.
 
-Reconcile candidate inputs, participant identities, review coverage, pending results/decisions and owned observers. Use inbox `status` to inspect first; `take` and other state transitions are task operations. Respect an explicit pause or stop and the current user's resumption authority. A stale active card is context to reconcile rather than permission to relaunch its workers.
+Reconcile candidate inputs, participant identities, actual review coverage, consumed review rounds, repair policy, finding dispositions, pending results/decisions and owned observers. Recover the round history before dispatching; missing counts do not authorize resetting the budget. Use inbox `status` to inspect first; `take` and other state transitions are task operations. Respect an explicit pause or stop and the current user's resumption authority. A stale active card is context to reconcile rather than permission to relaunch its workers.
 
 Replace the current card through `task_card.py set` after a meaningful handoff or decision. Keep fixes and corrections in the history below it. Preserve old observations' tested versions; do not treat the compaction summary or setup receipt as a newer authority than the actual records.
 

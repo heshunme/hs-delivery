@@ -3,7 +3,9 @@
 <!-- After setup confirmation, copy into the target project's .delivery/delivery.md, fill from actual project sources,
      and remove irrelevant fields. This Markdown is read by the agent, not parsed by scripts.
      Paths are relative to this file; ../AGENTS.md points to the repository root.
-     Unknown facts stay explicit. Task progress and results belong in runs/<task>/task.md. -->
+     Resolve applicable choices as inherited, default adopted or project-specific, with a source.
+     Inapplicability needs a reason. Pending items need an affected action and next owner;
+     they do not count as completed policy setup. Task results belong in runs/<task>/task.md. -->
 
 ## Project context
 
@@ -37,11 +39,24 @@
 
 ## Review and acceptance
 
-- Independent review: `<project requirements and applicable review guide>`.
-- Separate comment/documentation audit: `<whether required and its trigger>`.
+The defaults below are a proposal to reconcile with existing project rules during setup. Record each resolved value and source; an installed template is not evidence that choices were confirmed. General severity and convergence rules live in the installed skill's `references/review-policy.md`.
+
+| Policy | Proposed general default | Resolved value and source/status |
+|---|---|---|
+| Initial review and method | Independent initial review for substantial complete delivery; the skill's review method plus project guidance | `<value; inherited/default adopted/project-specific>` |
+| Additional blocker conditions | None beyond the skill's baseline; every confirmed blocker must be resolved | `<extra conditions and source, or explicitly none>` |
+| Major treatment | Coordinator selects worthwhile in-scope repairs; otherwise accept/defer with rationale | `<required/optional repairs and decision owner>` |
+| Minor treatment | No automatic repair; record a disposition and select only worthwhile in-scope fixes | `<required/optional repairs and decision owner>` |
+| Blocker repair recheck | Targeted independent review/retest after verification | `<independent recheck or writer verification only>` |
+| Major/minor repair recheck | Writer verification; no automatic independent review | `<policy for each severity>` |
+| Code-review budget | Three rounds total: initial full review and at most two incremental rechecks; retain across sessions | `<finite total and extension decision owner>` |
+| Separate text audit | When project rules or the change warrant one; changed/invalidated text is always inspected | `<every PR/conditional requirement and execution point>` |
+| UI preview | Before/after evidence for visible UI changes | `<trigger, method and evidence location, or reason inapplicable>` |
+
 - Behavior/platform acceptance: `<changes requiring real-host/manual evidence; existing SOPs>`.
-- User-visible previews: `<when required and where to retain them>`.
 - Completion criteria: `<project-specific gates; the current task defines its actual endpoint>`.
+- Pending policy/check facts: `<item, affected action, next owner, or none>`.
+- Policy resolution: `<complete/pending; decision source; integration/loading status remains in setup.md>`.
 
 ## Records
 
@@ -53,7 +68,7 @@
 ## Publication and authorization
 
 - Branch/commit/PR conventions: `<existing guidance>`.
-- Merge conditions and method: `<required checks/review/platform evidence, actual PR dependencies/order and allowed method; code changes after review need independent delta review>`.
+- Merge conditions and method: `<required initial review and repair recheck policy, resolved blockers, checks/platform evidence, actual PR dependencies/order and allowed method>`.
 - Existing project grants: `<source, authorized actions, scope, conditions and expiry; or none established>`.
 - Release/deployment rules: `<existing guidance when applicable>`.
 

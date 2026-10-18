@@ -4,12 +4,13 @@
 - From: coordinator. To: auditor with fresh context. An agent handoff within the existing authorized task.
 - Candidate: `<full sha>` in `<worktree>`, compared with `<base full sha>`.
 - Rules: `<project comment, naming and public/private conventions>`.
+- Finding policy: `<absolute skill path>/references/review-policy.md`; `<project additions and treatment policy>`.
 
 ## Scope
 
 Inspect changed comments, documentation, test names and other explanatory text in the diff, plus adjacent claims the change may have invalidated. Product files are read-only; report findings rather than fixing them. Use this separate pass when project rules or the change warrant it.
 
-Pin the audited version and identify any later delta that remains unchecked. Verify suggested corrections against the actual code; this audit does not independently approve changed executable code. If checks are needed, coordinate with the verification owner and reuse unchanged-input evidence. Stop owned background commands before returning.
+Pin the audited version and identify any later delta that remains unchecked. Verify suggested corrections against the actual code; this audit does not independently approve changed executable code. Classify findings using the supplied severity policy; a wording preference is not a blocker. Return findings for coordinator disposition rather than automatically requesting repairs or another audit. A text-only audit does not reset or extend the code-review budget. If checks are needed, coordinate with the verification owner and reuse unchanged-input evidence. Stop owned background commands before returning.
 
 Check for:
 
@@ -18,7 +19,7 @@ Check for:
 
 ## Result and return
 
-Write `<task-dir>/review/<delivery-id>.md`: per finding, file:line, quoted text, category, evidence/reason and suggested correction. Group documentation findings separately if useful. Include the audited version and summary counts. Keep it immutable after returning.
+Write `<task-dir>/review/<delivery-id>.md`: per finding, file:line, quoted text, category, proposed severity, evidence/reason and suggested correction. A proposed blocker also needs its requirement/source, reachable trigger, consequence and resolution criterion. Group documentation findings separately if useful. Include the audited version and summary counts. Keep it immutable after returning.
 
 ```text
 Result: <delivery-id>
