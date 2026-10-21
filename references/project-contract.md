@@ -16,7 +16,7 @@ Recover these facts for the current task:
 
 Use repository instructions and actual scripts to establish check coverage. Another project's hook behavior, platform matrix, retry allowance, commit style or permission grant does not carry over.
 
-For a project without conventions, use the skill's general defaults rather than silently omitting behavior. Read existing rules and scripts before asking questions. Present unresolved policy choices together with recommendations and effects; do not ask users to rediscover commands or reconfirm settled decisions. Keep a dependent action pending while doing unblocked preparation.
+For a project without conventions, use the skill's general defaults rather than silently omitting behavior or treating empty fields as decisions for the user. Read existing rules and scripts first. Present material conflicts, unknown required facts or actual authorization gaps with recommendations; do not ask users to rediscover commands or reconfirm settled decisions. Keep only dependent actions pending.
 
 ## Resolve delivery behavior
 
@@ -37,7 +37,7 @@ Use these fallbacks when no established project or user policy provides a differ
 | Verification budget | Use [verification guidance](verification.md), including evidence reuse and bounded failure diagnosis. Record any project lock, retry rule or hook exemption; absent an exemption, preserve hooks. |
 | Endpoint and authority | Name the requested endpoint and existing grants, or none established. No publication, merge, release or deployment authority comes from this template. |
 
-For every applicable item record its resolved value and source as inherited, default adopted or project-specific. Mark an item inapplicable with a reason. A pending choice must name the affected action and next owner; it cannot masquerade as an adopted default or completed policy setup. Routine task execution can use the general fallbacks without creating persistent infrastructure, but initialization must make their use explicit. Apply stricter existing repository requirements rather than letting a missing local setting erase them.
+Record applicable policy sources as inherited, default adopted or project-specific; one link can identify the adopted default set without copying its table. Record project differences and meaningful inapplicability. A genuinely pending choice names its affected action and next owner; an uncovered field with an applicable default is not pending merely because it is blank. Routine execution can use the fallbacks without persistent infrastructure; initialization makes their adoption explicit. Apply existing repository requirements rather than letting a missing local setting erase them.
 
 ## Preparing delivery.md
 
@@ -58,4 +58,4 @@ Relative paths in `.delivery/delivery.md` are resolved from that file's director
 
 Use absolute paths in assignments that cross worktrees or sessions. Do not copy machine-specific inbox state or observer bindings as part of installing the skill elsewhere. Keep private records out of published output; describe the behavior there in self-contained terms.
 
-For adoption or incomplete setup, follow [project initialization and recovery](setup-and-recovery.md): inspect first, preview the concrete changes and obtain setup confirmation before writing them. This includes local Git exclusion without changing `.gitignore`, needed Python capabilities and a short pointer in the host's project instructions. Reading this project contract or preserving a task card does not establish instruction loading. Keep configuration, observed entry loading and verified recovery separate, and the destination-host trial visibly pending until [its acceptance scenarios](host-acceptance.md) are exercised.
+For adoption or incomplete setup, follow [project initialization and recovery](setup-and-recovery.md): inspect first, preview concrete changes and resolve any authorization gap before applying them; carry forward existing approval. This includes local Git exclusion without changing `.gitignore`, needed Python capabilities and a short pointer in the host's project instructions. Reading this project contract or preserving a task card does not establish instruction loading. Keep configuration, observed entry loading and verified recovery separate, and the destination-host trial visibly pending until [its acceptance scenarios](host-acceptance.md) are exercised.

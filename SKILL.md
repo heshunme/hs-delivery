@@ -11,9 +11,9 @@ Keep the accepted task, implementation, findings and validation tied to the same
 
 Resolve the target repository separately from this skill's installation. Read its applicable `AGENTS.md` or equivalent instructions, then its existing task or planning entry point. If present, read `.delivery/delivery.md` for project-specific delivery conventions. The [project contract](references/project-contract.md) describes the information to recover and links a starter template; an existing project structure can supply it without a new file.
 
-Apply the skill's general workflow defaults, recover project-specific choices, and record action authority separately. Missing project configuration does not remove the defaults or create a permission grant. During initialization, resolve delivery behavior as well as tool setup: derive existing facts first, then present unresolved policy choices with recommendations and their effects. Track pending choices without claiming policy setup complete.
+Inherit established project policy and valid grants with their sources; project choices override the general defaults. Use defaults for uncovered behavior without turning every empty field into a user decision. Resolve material conflicts or gaps affecting the current endpoint, and record authority separately. Missing configuration neither removes defaults nor creates a grant.
 
-When project infrastructure is missing or incomplete, follow [setup and recovery](references/setup-and-recovery.md): inspect without writing, explain the concrete initialization changes and obtain the user's confirmation before applying them. Reuse equivalent existing infrastructure; skill invocation alone does not authorize setup, and consultation or a brief task need not create persistent records. Approval to update this skill package does not initialize its repository or any other project.
+When project infrastructure is missing or incomplete, follow [setup and recovery](references/setup-and-recovery.md): inspect without writing and explain concrete changes; obtain confirmation for setup outside existing authorization. Reuse equivalent infrastructure and carry forward already authorized changes without asking again. Skill invocation alone does not authorize setup, and consultation or a brief task need not create persistent records. Approval to update this skill package does not initialize its repository or any other project.
 
 For a request to continue a plan, recover the accepted goal, current stage, decisions and remaining work before choosing an implementation task. Check dated plans against current code and user instructions. An issue list or last completed PR does not establish the next milestone.
 
@@ -30,7 +30,7 @@ Choose the requested mode:
 
 Derive commit, push, PR, merge, release and deployment authority from the user's request and applicable project grants. This skill grants none of those actions on its own and supplies no hook-bypass exemption. Record grants that later sessions need to recover in the [task record](references/task-record.md#authorizations).
 
-On compaction or resumption, reload this skill and the active task card before acting. Put the recovery reminder in a loaded project instruction source outside the skill body; [setup and recovery](references/setup-and-recovery.md) separates written configuration, observed loading and verified recovery. Use `scripts/task_card.py list --runs <runs-dir>` and `show --task-dir <task-dir>` when the task uses these helpers. Historical completion claims apply to their recorded versions.
+On compaction or genuine context loss, reload this skill, applicable project policy and the active task card before acting. During ordinary continuation, consume changed inputs, decisions and pending results instead of repeatedly loading unchanged rules and full history. Put the recovery reminder in a loaded project instruction source outside the skill body; [setup and recovery](references/setup-and-recovery.md) separates written configuration, observed loading and verified recovery. Use `scripts/task_card.py list --runs <runs-dir>` and `show --task-dir <task-dir>` when the task uses these helpers. Historical completion claims apply to their recorded versions.
 
 ## Assign ownership and preserve independence
 
@@ -42,7 +42,7 @@ Write assignments from the [templates](references/assignments.md), retaining the
 
 Make routine design and implementation choices within accepted scope and record their basis. For a difficult in-scope trade-off, seek fresh independent advice before deciding; resolve conflicting advice rather than alternating implementations. Escalate reversals of accepted decisions, substantial scope or behavior changes, and consequential security, cost or external effects not already authorized.
 
-Set explicit checkpoints when feedback must precede a design-dependent or expensive next step. Replace a lost participant at a clear boundary and recover its artifacts before repeating work. Do not silently turn the coordinator's own inspection into independent review.
+Set checkpoints when feedback must precede a design-dependent or expensive next step. Reconcile each new result before deciding whether another task is needed; suggestions are not automatic dispatch triggers. Recover a lost participant's artifacts before repeating work, following host and project recovery rules. Do not silently turn the coordinator's own inspection into independent review.
 
 ## Maintain a small durable record
 
@@ -56,7 +56,7 @@ Report material findings, decisions, progress and blockers. Empty callbacks need
 
 ## Choose acceptance and checks before expensive work
 
-For a substantial behavior change, define meaningful usage or execution scenarios early. Tie each to relevant inputs/fixtures, environment, trigger-to-result path, observable outcome and existing or missing evidence. Judge coverage by the affected behavior chain, including applicable host/platform combinations, rather than test counts. Choose automation and presentation evidence proportionately using the [acceptance template](references/templates/acceptance.md).
+For substantial behavior changes, define scenarios tied to accepted requirements, relevant inputs, environment and observable outcomes. Distinguish required conditions from engineering starting values and diagnostic observations. Use the [acceptance template](references/templates/acceptance.md) and [verification guidance](references/verification.md) to choose sufficient evidence and return to the delivery goal when research or tooling expands. Judge coverage by the affected behavior chain and applicable platforms, rather than test counts.
 
 Recover the project's required gates and conditional platform checks at kickoff; revise applicability if scope changes. Record the owner and execution point. Probe needed local capability cheaply before declaring an environment unavailable. Required but unexecuted acceptance stays visible with a next owner.
 

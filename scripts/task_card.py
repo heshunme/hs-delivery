@@ -84,7 +84,7 @@ def worktrees(repo):
         path = info.get('worktree', '')
         if not path:
             continue
-        status = subprocess.run(['git', '-C', path, 'status', '--porcelain'],
+        status = subprocess.run(['git', '-C', path, 'status', '--porcelain', '--untracked-files=all'],
                                 text=True, capture_output=True, timeout=30)
         entry = {'path': path, 'branch': info.get('branch'),
                  'dirty': None if status.returncode else bool(status.stdout.strip()),
@@ -108,6 +108,166 @@ def check(task_dir, repo):
     return report
 
 
+def current_artifact(path, expected):
+    """Read one explicitly selected file; do not treat unreadable bytes as a matching hash."""
+    record = {'path': str(path), 'expected_sha256': expected, 'status': 'unknown'}
+    if not isinstance(expected, str) or not re.fullmatch(r'[0-9a-fA-F]{64}', expected):
+        record['error'] = 'expected SHA-256 must contain 64 hexadecimal characters'
+        return record
+    try:
+        digest = hashlib.sha256()
+        with path.open('rb') as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b''):
+                digest.update(chunk)
+        record['actual_sha256'] = digest.hexdigest()
+        record['status'] = 'matched' if digest.hexdigest() == expected.lower() else 'changed'
+    except OSError as error:
+        record['error'] = str(error)
+    return record
+
+
+def current_worktree(path, repo):
+    """Inspect only an explicitly selected checkout in the given repository, without index refresh writes."""
+    record = {'path': str(path), 'status': 'unknown', 'dirty': None}
+    env = {**os.environ, 'GIT_OPTIONAL_LOCKS': '0'}
+
+    def git(directory, *args):
+        result = subprocess.run(['git', '-C', str(directory), *args], text=True,
+                                capture_output=True, timeout=30, env=env)
+        if result.returncode:
+            raise RuntimeError(result.stderr.strip() or f'git exited {result.returncode}')
+        return result.stdout.strip()
+
+    def common(directory):
+        location = Path(git(directory, 'rev-parse', '--git-common-dir'))
+        return (directory / location).resolve() if not location.is_absolute() else location.resolve()
+
+    try:
+        # A directory inside another checkout is not a selected worktree root.
+        top = Path(git(path, 'rev-parse', '--show-toplevel')).resolve()
+        if top != path:
+            raise ValueError(f'not a checkout root (root is {top})')
+        if common(path) != common(repo):
+            raise ValueError(f'checkout does not belong to repository {repo}')
+        record['head'] = git(path, 'rev-parse', '--verify', 'HEAD')
+        record['dirty'] = bool(git(path, 'status', '--porcelain', '--untracked-files=all'))
+        record['status'] = 'inspected'
+    except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
+        record['error'] = str(error)
+    return record
+
+
+def check_current(task_dir, *, inbox=None, pending_results=False, result_ids=(),
+                  repo=None, selected_worktrees=(), artifacts=()):
+    """Verify explicit daily inputs, never discover historical inboxes or inspect other checkouts.
+
+    This is a bounded snapshot, not closeout or product acceptance. Result selection is either
+    the pending entries in one named inbox or exact IDs. Checkout paths come from the caller's
+    candidate/ownership record; HEAD is reported, not compared with a guessed candidate pin.
+    """
+    if pending_results and result_ids:
+        raise ValueError('choose --pending-results or --result-id, not both')
+    if (pending_results or result_ids) and inbox is None:
+        raise ValueError('result selection requires --inbox')
+    if inbox is not None and not (pending_results or result_ids):
+        raise ValueError('--inbox requires --pending-results or --result-id')
+    if selected_worktrees and repo is None:
+        raise ValueError('--worktree requires --repo')
+    if not (inbox is not None or selected_worktrees or artifacts):
+        raise ValueError('select results, worktrees or artifacts explicitly; use check for closeout')
+
+    report = {
+        'task': task_dir.name, 'mode': 'current', 'outcome': 'checked', 'issues': [],
+        'checked': {'card': str(task_dir / 'task.md'), 'inbox': None,
+                    'worktrees': [], 'artifacts': []},
+        'not_checked': [
+            'Other inboxes and unselected result artifacts, including historical results.',
+            'Terminal, observer and process reconciliation; required closeout debts.',
+            'Other worktrees and files not explicitly selected for hash verification.',
+            'Checkout HEAD against a candidate pin; reported HEAD/dirty state is not candidate validation.',
+            'Product acceptance, evidence applicability and permission to proceed.',
+        ],
+    }
+
+    def issue(area, identity, detail):
+        report['issues'].append({'area': area, 'identity': identity, 'detail': detail})
+
+    try:
+        card = card_of((task_dir / 'task.md').read_text())
+        report['card'] = None if card is None else {
+            'status': field(card, 'Status'), 'updated': field(card, 'Updated'),
+            'expecting': field(card, 'Expecting'), 'next': field(card, 'Next')}
+        if card is None or field(card, 'Status') not in STATUSES:
+            issue('card', str(task_dir / 'task.md'), 'missing card or invalid task status')
+    except (OSError, ValueError) as error:
+        report['card'] = None
+        issue('card', str(task_dir / 'task.md'), str(error))
+
+    if inbox is not None:
+        selected = {'path': str(inbox), 'selection': 'pending' if pending_results else 'exact_ids',
+                    'results': {}, 'unselected_result_count': None}
+        report['checked']['inbox'] = selected
+        try:
+            if not (inbox / 'lock').is_file():
+                raise ValueError('selected inbox has no registration lock file')
+            state = json.loads((inbox / 'state.json').read_text())
+            entries = state['results']
+            if not isinstance(entries, dict):
+                raise ValueError('inbox results must be an object')
+            selected['task'] = state['task']
+            selected['mode'] = state['mode']
+            if not isinstance(state['task'], str) or not state['task']:
+                raise ValueError('inbox task must be a nonempty string')
+            if state['mode'] not in ('active', 'waiting', 'paused', 'closed'):
+                raise ValueError('unknown inbox mode')
+            if pending_results:
+                if any(not isinstance(entry, dict) for entry in entries.values()):
+                    raise ValueError('cannot select pending results from malformed entries')
+                identities = [identity for identity, entry in entries.items() if 'disposition' not in entry]
+            else:
+                identities = list(dict.fromkeys(result_ids))
+            selected['unselected_result_count'] = len(set(entries) - set(identities))
+            for identity in identities:
+                try:
+                    entry = entries[identity]
+                    payload = entry['payload']
+                    path = Path(payload['artifact'])
+                    if not path.is_absolute():
+                        raise ValueError('result artifact path must be absolute')
+                    if payload.get('delivery_id', identity) != identity:
+                        raise ValueError('result delivery ID differs from its inbox key')
+                    if payload.get('task', state['task']) != state['task']:
+                        raise ValueError('result task differs from its inbox registration')
+                    record = current_artifact(path, payload['artifact_sha256'])
+                    record['pending'] = 'disposition' not in entry
+                    record['invalidated'] = 'invalidation' in entry
+                    selected['results'][identity] = record
+                    if record['status'] != 'matched':
+                        issue('result', identity, record.get('error', 'artifact hash changed'))
+                    if record['invalidated']:
+                        issue('result', identity, 'result is invalidated; a matching hash does not reinstate it')
+                except (KeyError, TypeError, ValueError) as error:
+                    selected['results'][identity] = {'status': 'unknown', 'error': str(error)}
+                    issue('result', identity, f'cannot inspect selected result: {error}')
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            issue('inbox', str(inbox), f'cannot read selected inbox: {error}')
+
+    for path in dict.fromkeys(selected_worktrees):
+        record = current_worktree(path, repo)
+        report['checked']['worktrees'].append(record)
+        if record['status'] == 'unknown':
+            issue('worktree', str(path), record['error'])
+
+    for path, digest in artifacts:
+        record = current_artifact(path, digest)
+        report['checked']['artifacts'].append(record)
+        if record['status'] != 'matched':
+            issue('artifact', str(path), record.get('error', 'artifact hash changed'))
+    if report['issues']:
+        report['outcome'] = 'attention'
+    return report
+
+
 def main():
     """Expose explicit card operations so the current state is replaced rather than appended."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -122,6 +282,16 @@ def main():
     audit = sub.add_parser('check', help='Read-only closeout audit: card, inboxes, linked worktrees')
     audit.add_argument('--task-dir', required=True)
     audit.add_argument('--repo', required=True, help='Project repository to inspect; independent of the skill location')
+    current = sub.add_parser('check-current', help='Read-only explicit scope check; does not replace closeout check')
+    current.add_argument('--task-dir', required=True)
+    current.add_argument('--inbox', help='One registered inbox; do not search task history')
+    selection = current.add_mutually_exclusive_group()
+    selection.add_argument('--pending-results', action='store_true', help='Hash only pending result artifacts in --inbox')
+    selection.add_argument('--result-id', action='append', default=[], help='Exact result ID to verify in --inbox; repeatable')
+    current.add_argument('--repo', help='Repository whose selected worktrees are inspected')
+    current.add_argument('--worktree', action='append', default=[], help='Candidate/owner checkout root to inspect; repeatable')
+    current.add_argument('--artifact', nargs=2, action='append', default=[], metavar=('PATH', 'SHA256'),
+                         help='Explicit candidate/evidence file and expected hash; repeatable')
     args = parser.parse_args()
     try:
         if args.action == 'set':
@@ -142,6 +312,15 @@ def main():
                                  field(card, 'Next') or ''))
             for updated, name, status, upcoming in sorted(rows, reverse=True):
                 print(f'{name}\t{status}\t{updated}\tNext: {upcoming}')
+        elif args.action == 'check-current':
+            report = check_current(
+                Path(args.task_dir).resolve(), inbox=None if args.inbox is None else Path(args.inbox).resolve(),
+                pending_results=args.pending_results, result_ids=args.result_id,
+                repo=None if args.repo is None else Path(args.repo).resolve(),
+                selected_worktrees=[Path(path).resolve() for path in args.worktree],
+                artifacts=[(Path(path).resolve(), digest) for path, digest in args.artifact])
+            print(json.dumps(report, ensure_ascii=False, indent=2))
+            return 1 if report['issues'] else 0
         else:
             print(json.dumps(check(Path(args.task_dir).resolve(), Path(args.repo)), ensure_ascii=False, indent=2))
         return 0

@@ -42,6 +42,14 @@ For native background commands consumed directly by the coordinator, the host re
 
 ## Coordinator: take, reconcile, acknowledge, then wait
 
+Inspect without changing mode or wake state when needed:
+
+```text
+python3 <skill>/scripts/task_inbox.py --mailbox <inbox> status --summary
+```
+
+The summary contains registered facts, pending result pointers, resource/observer discrepancies and `not_checked`; it does not hash artifacts, verify process liveness or approve results. Full `status` remains available. Removed terminal observers are not reread by default; add `--terminal-id <id>` to inspect a specific historical binding. Result disposition, observer outcome and terminal removal are reported separately. The state digest identifies this local ledger snapshot, not external ownership.
+
 At work resumption and at useful review/verification boundaries:
 
 ```text
@@ -50,15 +58,15 @@ python3 <skill>/scripts/task_inbox.py --mailbox <inbox> take
 
 This marks the coordinator active and returns **all unprocessed results**, retiring any pending wakeup the transport owns. A callback for an empty batch needs no “already handled” commentary/final response and no reply to the sender.
 
-Verify membership, artifact hash, version, actual findings and current required gates. Record a disposition for each result you have actually handled:
+Reconcile the batch together. Combine independent mechanical checks in one tool call, then inspect the actual findings and evidence that need judgment. Verify membership, artifact hash, version and current required gates; do not reload the entire task or audit all historical results for each new item. [Current-scope checks](task-record.md#current-state-and-historical-evidence) can verify selected artifacts and checkouts without consuming the results. Record a disposition for each result you have actually handled:
 
 ```text
 python3 <skill>/scripts/task_inbox.py --mailbox <inbox> ack
   --delivery-id <exact-id> --sha256 <observed-artifact-hash>
-  --disposition <fix/reuse/superseded/blocked conclusion and evidence>
+  --disposition <fix/reuse/superseded/blocked conclusion and evidence> --brief
 ```
 
-Acknowledgment updates the local ledger; it sends no message. `take` does not mark results handled, and `ack` never acknowledges newer results implicitly. A superseded SHA can be acknowledged with that reason while retaining its historical outcome; it must not approve the new candidate.
+Acknowledgment updates the local ledger; it sends no message. `--brief` on `ack`, `invalidate`, `terminal-add` and `terminals-reconcile` returns the relevant change/counts instead of the full ledger; omitting it preserves the complete return. This changes output only, not the operation's validation or side effects. `take` activates the inbox and may retire its wake, so it is not a read-only substitute for `status`. It does not mark results handled, and `ack` never acknowledges newer results implicitly. A superseded SHA can be acknowledged with that reason while retaining its historical outcome; it must not approve the new candidate.
 
 If evidence is unusable, such as an overwritten or missing published file, explicitly invalidate that record instead of forcing an acknowledgment:
 
@@ -79,6 +87,35 @@ python3 <skill>/scripts/task_inbox.py --mailbox <inbox> wait
 If it returns `ready: true`, results arrived during the work: process them before ending the turn. If it returns `mode: waiting`, end the current turn normally. Publishers and this transition share a file lock, so a result either appears in the ready batch or is retained for the transport's next wakeup. Do not end a waiting turn with the inbox still active, or put the model into repeated sleep/status polling. Ordinary short commands keep their normal completion path.
 
 On deliberate task pause, use `pause` and stop owned observers as appropriate. `take`/`wait` cannot resume a paused task. `resume` is only for the user's authorized resumption; it returns to active, without automatically waking or running a model.
+
+## Rebind a drained coordinator route
+
+A logical role and its native thread are different identities. If the coordinator thread changes, do not edit `state.json` or create a second inbox. First establish that old publishers have drained, the old consumer has released ownership, all results are disposed of, wake state is settled and registered terminal resources are removed. Use the supported old-owner path to reach that boundary; uncertain ownership is not evidence of release.
+
+For a `codex-queue` inbox in `active` mode, save a handoff file with the actual facts and evidence pointers:
+
+```json
+{
+  "migration_id": "coordinator-handoff-1",
+  "task": "actual-task-id",
+  "old_thread": "old-native-thread-uuid",
+  "new_thread": "new-native-thread-uuid",
+  "publishers_drained": true,
+  "old_consumer_released": true,
+  "evidence": ["path-to-the-verified-handoff-record"]
+}
+```
+
+```text
+python3 <skill>/scripts/task_inbox.py --mailbox <inbox> rebind
+  --expected-thread <old-native-uuid> --new-thread <new-native-uuid>
+  --expected-state-sha256 <state_sha256-from-status-summary>
+  --handoff <handoff.json>
+```
+
+The helper checks the old route and state digest under the publication lock, retains result/hash/ACK/resource history, and records the migration identity and handoff digest for reconciliation. It refuses paused/closed, pending results, wake state or unreconciled terminals. An exact replay is idempotent; after a conflict, inspect the existing state rather than changing the expected hash and retrying blindly. New assignments use the new thread; old published payloads retain their original identity.
+
+External ownership and publisher drain are operator-attested facts, not host-verified by this helper. Terminal removal alone cannot prove either. This does not support moving active publishers, switching transport/endpoint, automatic resumption or a second consumer. Real host migration and notification behavior require their own acceptance.
 
 ## Closeout
 

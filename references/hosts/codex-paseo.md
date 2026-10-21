@@ -2,7 +2,7 @@
 
 Read with [session handoffs](../session-handoff.md), the [task inbox](../result-inbox.md) and [CI continuation](../ci-watcher.md). This adapter retains the source workflow's Codex/Paseo delivery path. Inspect destination tools and completion behavior before relying on them; the package does not establish compatibility with every Codex or Paseo version.
 
-Follow [project initialization and recovery](../setup-and-recovery.md) before first adoption: inspect, preview actual changes and obtain setup confirmation. Append the recovery pointer to the applicable loaded `AGENTS.md` or an established project instruction mechanism, preserving its existing rules. Record the actual harness/version and local interpreter in the setup receipt; Codex, Paseo-managed sessions and other execution surfaces need their own capability checks. A pointer is intended to lead back to the skill and task card; distinguish writing it, observing it loaded and verifying compaction/resume in a later [host trial](../host-acceptance.md).
+Follow [project initialization and recovery](../setup-and-recovery.md) before first adoption: inspect, preview actual changes and resolve authorization not already supplied. Append the recovery pointer to the applicable loaded `AGENTS.md` or an established project instruction mechanism, preserving its existing rules. Record the actual harness/version and local interpreter in the setup receipt; Codex, Paseo-managed sessions and other execution surfaces need their own capability checks. A pointer leads back to the skill and task card after context loss; normal callbacks consume relevant changes without reloading the whole history. Distinguish writing it, observing it loaded and verifying recovery in a later [host trial](../host-acceptance.md).
 
 ## Choose the actual mechanism
 
@@ -43,6 +43,8 @@ Publication during active work only records results. The first result while wait
 
 Retain the host's failure visibility where available. A completion subscription may cover only the initial turn or combine success and failure notices; do not disable combined notifications just to silence a duplicate success notice. Reconcile notices together without acknowledgment loops, and missing expected results at checkpoints and on resumption rather than assuming every queued round has a callback.
 
+Consumption-side deduplication cannot prevent a second host `finished` input from interrupting an active turn. Eliminating that interruption requires the host to correlate, coalesce or deliver the event without interrupting before injection. Keep this capability visibly unverified until tested; do not disable failure coverage or change transport to hide it. If the native coordinator thread changes, use the inbox's [drained-route rebind](../result-inbox.md#rebind-a-drained-coordinator-route), not a second inbox or a manual state edit. Host ownership is verified separately from the helper's local checks.
+
 ## Finite observers
 
 Read [CI continuation](../ci-watcher.md) before using an observer. Codex background commands do not supply the coordinator's required completion callback. Run coordinator-owned long commands through `watch_cmd.py` and guard each expected Paseo inbox result with `watch_result.py`, so the model need not poll. Participant-owned commands remain in that participant's turn and checkout.
@@ -53,7 +55,7 @@ Launch observers only through an available mechanism whose lifetime and completi
 
 ```text
 python3 <skill>/scripts/task_inbox.py --mailbox <inbox> terminal-add
-  --terminal-id <terminal-uuid> --state-dir <observer-state-dir>
+  --terminal-id <terminal-uuid> --state-dir <observer-state-dir> --brief
 
 exec python3 <skill>/scripts/watch_cmd.py --task <task-id> --label <name>
   --cwd <worktree> --state-dir <new-state-dir> --max-wait 7200
@@ -68,8 +70,10 @@ exec python3 <skill>/scripts/watch_result.py --task <task-id>
 
 Confirm readiness together with current process state. Before ending an idle turn, `wait` the inbox. Observers need no model-driven status loop. If no durable launch or wakeup path exists, retain an explicit next action instead of promising automatic continuation.
 
-The command observer records Git state before/after, its exit and `command.log`. A dirty flag does not reconstruct local inputs; retain the necessary changes separately. A stop/deadline terminates its process group. The result observer exits without a second publication when the expected ID arrives; `missing` or `overdue` prompts investigation rather than automatic reassignment.
+The command observer records Git state before/after, its exit, log tail and the full `command.log`. On failure it also returns a bounded diagnostic excerpt with line numbers and scan limits; these text hints do not determine the outcome. A dirty flag does not reconstruct local inputs, and a failed Git inspection leaves them unknown. A stop/deadline or observation error terminates its owned process group and reaps the command. Preserve unique test data before the command's own cleanup: the watcher cannot recover already deleted files.
 
-Stop through `STOP` or the verified owned process. After exit, preserve status and reconcile the dedicated terminal. For the bundled Paseo terminal ledger, save the host's full terminal list as `{"scope":"all","captured_at":"<current ISO timestamp>","terminals":[...]}` and run `terminals-reconcile --snapshot <file>`. The snapshot must follow registration and be at most 60 seconds old. Close a remaining owned terminal through the host and capture a new snapshot; do not touch unrelated terminals.
+The result observer exits without a second publication when the expected ID arrives; `missing` or `overdue` prompts investigation rather than automatic reassignment. These observers are not a generic launcher for external coding agents: preserve the project's session recovery and timeout policy. Use one callback to reconcile related results and resources in a batch, not a model status loop per process.
+
+Stop through `STOP` or the verified owned process. After exit, preserve status and reconcile the dedicated terminal. For the bundled Paseo terminal ledger, save the host's full terminal list as `{"scope":"all","captured_at":"<current ISO timestamp>","terminals":[...]}` and run `terminals-reconcile --snapshot <file> --brief`. The snapshot must follow registration and be at most 60 seconds old. Close a remaining owned terminal through the host and capture a new snapshot; do not touch unrelated terminals. Inspect `status --summary` for relevant observer evidence, or select a removed observer with `--terminal-id`; result disposition, observer state and terminal removal are separate facts and none establishes child-process liveness.
 
 No observer survives arbitrary machine/session loss by guarantee. On resumption, inspect bindings, results, inbox and fresh external state. Merging remains a coordinator action under the current task's actual authorization.

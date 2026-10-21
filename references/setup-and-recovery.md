@@ -22,9 +22,9 @@ For a task spanning independent repositories, follow [multi-repository delivery]
 
 Use the [project contract](project-contract.md#resolve-delivery-behavior) to inspect actual delivery rules as well as infrastructure. Read repository instructions, hooks, CI and existing decisions first. Fill derivable facts without asking the user to do that investigation. Inherit settled choices and grants with their sources; do not ask for their authorization again.
 
-Present the remaining choices in one compact proposal: the proposed value/default, how it changes delivery, and any unresolved requirement. Include additional blocker conditions, major/minor treatment, recheck requirements for repairs by severity, review-unit/budget conventions, separate text-audit triggers, change presentation, applicable checks/acceptance, and endpoint/authority. Actual task units and counts belong in task records. Keep universal resolution and evidence rules distinct from configurable choices. A missing project file does not turn off the skill's defaults.
+Use the general defaults for uncovered behavior and identify the adopted set once. Ask only about material conflicts, required facts that cannot be derived, or actual authorization gaps; group those with recommended choices and effects. Check review/severity/recheck policy, text-audit triggers, applicable acceptance and endpoint against existing sources, without making every blank field a question. Actual task units and counts belong in task records. A missing project file does not turn off defaults or grant authority.
 
-Resolve each applicable item as inherited, default adopted or project-specific; record inapplicability with a reason. Keep unresolved facts or choices pending with their dependent action and next owner. Do not call delivery policy complete while applicable decisions remain pending. Configuration and dependency installation may finish separately; unrelated work can proceed using established capabilities. Repeated setup asks only about relevant gaps or changed policies, not the whole questionnaire again.
+Record inherited or adopted defaults by reference and explicit project differences with sources. Keep real unresolved facts or choices pending with their dependent action and next owner; do not call them resolved. Configuration and dependency installation may finish separately, while unrelated work proceeds. Repeated setup handles relevant gaps or changed policies, not the whole questionnaire again.
 
 ## Show a concrete plan and obtain confirmation
 
@@ -130,7 +130,7 @@ Reinitialization is a read-only comparison followed by a preview of missing or c
 
 ## Recover an active task
 
-Read the project's conventions and applicable repository rules, then reload this skill. Resolve the actual task root from those conventions; the fallback is `<repo>/.delivery/runs`. Use the selected helper interpreter if available; a missing helper environment does not prevent reading the Markdown records.
+On a new session, compaction or genuine context loss, read the project's conventions and applicable repository rules, then reload this skill. A normal callback within valid context needs changed inputs and pending results, not this entire recovery procedure. Resolve the actual task root from conventions; the fallback is `<repo>/.delivery/runs`. Use the selected helper interpreter if available; a missing helper environment does not prevent reading Markdown records.
 
 ```text
 <python> <skill>/scripts/task_card.py list --runs <runs-dir>
@@ -139,7 +139,7 @@ Read the project's conventions and applicable repository rules, then reload this
 
 Match the current user request and known session/worktree assignment to the task's goal, endpoint and authorization before continuing. With multiple active cards, use their goals and linked plans; do not pick one merely because it is newest. If the mapping remains ambiguous, ask which task to resume before dependent action. `list` only finds immediate child records with a task card. An empty list does not prove that older, differently located or cardless project records are absent. Follow known task links before creating a card when one is needed.
 
-Reconcile candidate inputs, participant identities, actual review coverage, declared review units and their consumed rounds, repair policy, finding dispositions, pending results/decisions and owned observers. Recover unit boundaries and round history before dispatching; missing counts do not authorize resetting budgets. Use inbox `status` to inspect first; `take` and other state transitions are task operations. Respect an explicit pause or stop and the current user's resumption authority. A stale active card is context to reconcile rather than permission to relaunch its workers.
+Reconcile candidate inputs, participant identities, actual review coverage, declared review units and their consumed rounds, repair policy, finding dispositions, pending results/decisions and owned observers. Recover unit boundaries and round history before dispatching; missing counts do not authorize resetting budgets. Use inbox `status --summary` to inspect first, expanding only the relevant evidence; `take` and other transitions are task operations. Respect an explicit pause or stop and current resumption authority. A stale active card is context to reconcile rather than permission to relaunch its workers.
 
 Replace the current card through `task_card.py set` after a meaningful handoff or decision. Keep fixes and corrections in the history below it. Preserve old observations' tested versions; do not treat the compaction summary or setup receipt as a newer authority than the actual records.
 

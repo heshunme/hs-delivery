@@ -94,3 +94,25 @@ def finish(args, state, binding, stopped, observation, *, delivery_id, version, 
                                     'mailbox': args.mailbox})
     print(phase.upper() + ' ' + str(artifact), flush=True)
     return 0
+
+
+def inspect_state(state_dir):
+    """Read observer evidence without repairing it or inferring process liveness."""
+    root = Path(state_dir)
+    report = {'state_dir': str(root), 'process_liveness': 'not_checked', 'errors': []}
+    for name in ('binding', 'status', 'result'):
+        try:
+            value = json.loads((root / f'{name}.json').read_text())
+            if not isinstance(value, dict):
+                raise ValueError('expected a JSON object')
+            # Bindings may contain command arguments; expose only lifecycle identifiers.
+            fields = {'binding': ('observer_id', 'task', 'expect', 'pid', 'started_at'),
+                      'status': ('phase', 'observed_at', 'outcome', 'notification', 'consecutive_errors', 'error'),
+                      'result': ('outcome', 'finished_at', 'agent_status')}[name]
+            report[name] = {key: value[key] for key in fields if key in value}
+        except FileNotFoundError:
+            report[name] = None
+        except (OSError, ValueError) as error:
+            report[name] = None
+            report['errors'].append({'file': name + '.json', 'error': str(error)})
+    return report

@@ -23,7 +23,11 @@ def source_identity(cwd):
     head = git('rev-parse', 'HEAD')
     if head is None:
         return {'head': None, 'dirty': None, 'version': 'not-a-git-checkout'}
-    dirty = bool(git('status', '--porcelain', '--untracked-files=normal'))
+    status = git('status', '--porcelain', '--untracked-files=normal')
+    if status is None:
+        return {'head': head, 'dirty': None, 'version': head + '+unknown',
+                'error': 'git status failed; local inputs are unknown'}
+    dirty = bool(status)
     return {'head': head, 'dirty': dirty, 'version': head + ('+dirty' if dirty else '')}
 
 
@@ -39,12 +43,55 @@ def tail(path, lines=40):
     return text.splitlines()[-lines:]
 
 
+def diagnostics(path, *, max_bytes=8 * 1024 * 1024, max_matches=8):
+    """Locate a few failure hints without returning the whole log or inferring its outcome."""
+    pattern = re.compile(r'\b(error|fatal|failed|failure|exception|panic|traceback)\b', re.I)
+    matches = []
+    scanned = 0
+    line_number = 1
+    try:
+        with path.open('rb') as stream:
+            size = os.fstat(stream.fileno()).st_size
+            while scanned < max_bytes and len(matches) < max_matches:
+                chunk = stream.readline(min(16384, max_bytes - scanned))
+                if not chunk:
+                    break
+                scanned += len(chunk)
+                text = chunk.decode('utf-8', 'replace').rstrip('\r\n')
+                match = pattern.search(text)
+                if match:
+                    start = max(0, match.start() - 120)
+                    excerpt = text[start:start + 1000]
+                    matches.append({'line': line_number, 'text': excerpt,
+                                    'truncated': start > 0 or start + len(excerpt) < len(text)})
+                line_number += chunk.count(b'\n')
+        return {'matches': matches, 'bytes_scanned': scanned, 'log_bytes': size,
+                'scan_complete': scanned >= size,
+                'note': 'Text hints only; command outcome comes from its exit/status. Full log retained.'}
+    except OSError as error:
+        return {'matches': [], 'bytes_scanned': scanned, 'scan_complete': False,
+                'error': f'{type(error).__name__}: {error}'}
+
+
 def kill_group(child, signum):
     """Signal the child's process group; a group that already exited is not an error."""
     try:
         os.killpg(child.pid, signum)
     except ProcessLookupError:
         pass
+
+
+def stop_child(child):
+    """Reap the owned command after a stop, deadline or observer failure."""
+    kill_group(child, signal.SIGTERM)
+    try:
+        child.wait(timeout=30)
+    except subprocess.TimeoutExpired:
+        pass
+    # The direct child can exit on TERM while descendants in its group ignore it.
+    # Finish the group even when wait() already reaped the leader.
+    kill_group(child, signal.SIGKILL)
+    child.wait()
 
 
 def run(args, state, stopped, log):
@@ -55,6 +102,16 @@ def run(args, state, stopped, log):
     with log.open('ab') as output:
         child = subprocess.Popen(args.command, cwd=args.cwd, stdin=subprocess.DEVNULL, stdout=output,
                                  stderr=subprocess.STDOUT, start_new_session=True)
+    try:
+        return observe_child(args, state, stopped, log, child)
+    except BaseException:
+        # Even a failed readiness write must not leave the launched process running unowned.
+        stop_child(child)
+        raise
+
+
+def observe_child(args, state, stopped, log, child):
+    """Record command readiness and wait for its actual exit."""
     save_json(state / 'ready.json', {'observed_at': now(), 'pid': os.getpid(), 'child_pid': child.pid})
     save_json(state / 'status.json', {'observed_at': now(), 'phase': 'running', 'child_pid': child.pid})
     print('READY ' + str(state / 'ready.json'), flush=True)
@@ -67,19 +124,17 @@ def run(args, state, stopped, log):
         elif time.monotonic() >= deadline:
             outcome = 'deadline'
         if outcome:
-            kill_group(child, signal.SIGTERM)
-            try:
-                child.wait(timeout=30)
-            except subprocess.TimeoutExpired:
-                kill_group(child, signal.SIGKILL)
-                child.wait()
+            stop_child(child)
             break
         stopped.wait(1)
     elapsed = round(time.monotonic() - started, 1)
     if outcome is None:
         outcome = 'succeeded' if child.returncode == 0 else 'failed'
-    return {'outcome': outcome, 'exit_code': child.returncode, 'duration_s': elapsed,
-            'log': str(log), 'log_tail': tail(log)}
+    result = {'outcome': outcome, 'exit_code': child.returncode, 'duration_s': elapsed,
+              'log': str(log), 'log_tail': tail(log)}
+    if outcome != 'succeeded':
+        result['diagnostics'] = diagnostics(log)
+    return result
 
 
 def main():
@@ -114,7 +169,8 @@ def main():
     try:
         observation = run(args, state, stopped, log)
     except Exception as error:
-        observation = {'outcome': 'monitor_error', 'detail': f'{type(error).__name__}: {error}'}
+        observation = {'outcome': 'monitor_error', 'detail': f'{type(error).__name__}: {error}',
+                       'log': str(log), 'log_tail': tail(log), 'diagnostics': diagnostics(log)}
     # a hook commit moves HEAD; the result must name the commit it made, not its parent
     try:
         after = source_identity(args.cwd)

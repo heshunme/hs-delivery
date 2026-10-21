@@ -18,14 +18,15 @@ from queue_result import now, save_json, submit
 
 
 @contextmanager
-def locked(mailbox):
-    """Serialize publishers and the coordinator across local processes."""
+def locked(mailbox, *, create=True):
+    """Serialize access; read-only queries require the existing mailbox and lock."""
     if not mailbox:
         # Path('') would silently resolve to the caller's working directory
         raise ValueError('inbox path is empty')
     root = Path(mailbox).resolve()
-    root.mkdir(parents=True, exist_ok=True)
-    with (root / 'lock').open('a') as handle:
+    if create:
+        root.mkdir(parents=True, exist_ok=True)
+    with (root / 'lock').open('a' if create else 'rb') as handle:
         deadline = time.monotonic() + 60
         while True:
             try:
@@ -158,12 +159,124 @@ def activate(root, state):
     save_json(root / 'state.json', state)
 
 
+def summarize(state, *, terminal_ids=None):
+    """Describe ledger facts and observer evidence; never activate, hash or approve."""
+    from observer import inspect_state
+    results = []
+    anomalies = []
+    if (state.get('wake') or {}).get('status') in ('intent', 'uncertain'):
+        anomalies.append({'wake_status': state['wake']['status'], 'meaning': 'delivery outcome requires reconciliation'})
+    for identity, entry in state['results'].items():
+        payload = entry['payload']
+        item = {'delivery_id': identity, 'artifact_sha256': payload['artifact_sha256'],
+                'version': payload['version'], 'artifact': payload['artifact'],
+                'disposition': ('invalidated' if 'invalidation' in entry else
+                                'processed' if 'disposition' in entry else 'pending')}
+        if item['disposition'] == 'pending':
+            results.append(item)
+        if 'invalidation' in entry:
+            anomalies.append({'delivery_id': identity, 'invalidation': entry['invalidation']})
+    resources = []
+    selected = set(terminal_ids or [])
+    unknown = selected - state.get('terminals', {}).keys()
+    if unknown:
+        raise ValueError('terminal IDs are not registered in this inbox: ' + ', '.join(sorted(unknown)))
+    for identity, entry in state.get('terminals', {}).items():
+        if entry['status'] == 'removed' and identity not in selected:
+            continue
+        observation = inspect_state(entry['state_dir'])
+        expected = (observation.get('binding') or {}).get('expect')
+        result = state['results'].get(expected)
+        observation.update(terminal_id=identity, terminal_status=entry['status'],
+                           expected_result=('not_registered' if expected is None else
+                                            'missing' if result is None else
+                                            'invalidated' if 'invalidation' in result else
+                                            'processed' if 'disposition' in result else 'recorded'))
+        if observation['errors'] or (observation.get('status') or {}).get('phase') in (
+                'notification_uncertain',) or ((observation.get('status') or {}).get('phase') == 'watching'
+                and (entry['status'] == 'removed' or result is not None)) or (observation.get('status') or {}).get('consecutive_errors', 0) or (
+                observation.get('result') or {}).get('outcome') in (
+                    'missing', 'overdue', 'monitor_error', 'stopped'):
+            anomalies.append({'terminal_id': identity, 'phase': (observation.get('status') or {}).get('phase'),
+                              'outcome': (observation.get('result') or {}).get('outcome'),
+                              'errors': observation['errors']})
+        resources.append(observation)
+    return {'task': state['task'], 'mode': state['mode'], 'thread': state['thread'],
+            'pending': results, 'results_count': len(state['results']),
+            'wake_status': (state.get('wake') or {}).get('status'),
+            'resources': resources, 'registered_terminals': len(state.get('terminals', {})),
+            'recorded_anomalies': anomalies,
+            'not_checked': ['artifact bytes and candidate equivalence', 'unregistered resources',
+                            'current host terminals and process/child liveness',
+                            'removed observer files unless selected with --terminal-id',
+                            'review, acceptance and delivery approval']}
+
+
+def rebind(state, args, current_sha256):
+    """Move an explicitly drained inbox; external ownership is an operator attestation."""
+    if wake_transport(state) != 'codex-queue' or state['mode'] != 'active':
+        raise RuntimeError('rebind requires an active codex-queue inbox; never resumes or reopens')
+    old = str(uuid.UUID(args['expected_thread']))
+    new = str(uuid.UUID(args['new_thread']))
+    if old == new:
+        raise ValueError('new thread must differ from the old thread')
+    handoff_path = Path(args['handoff'])
+    handoff_bytes = handoff_path.read_bytes()
+    handoff = json.loads(handoff_bytes)
+    if not isinstance(handoff, dict):
+        raise ValueError('handoff must be a JSON object')
+    identity = handoff.get('migration_id')
+    if not isinstance(identity, str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]{0,119}', identity):
+        raise ValueError('handoff needs a stable migration_id')
+    if (handoff.get('task'), handoff.get('old_thread'), handoff.get('new_thread')) != (state['task'], old, new):
+        raise ValueError('handoff task and threads do not match')
+    if handoff.get('publishers_drained') is not True or handoff.get('old_consumer_released') is not True:
+        raise ValueError('handoff must attest drained publishers and released old consumer')
+    evidence = handoff.get('evidence')
+    if not isinstance(evidence, list) or not evidence or any(not isinstance(x, str) or not x.strip() for x in evidence):
+        raise ValueError('handoff needs external identity/ownership evidence references')
+    digest = hashlib.sha256(handoff_bytes).hexdigest()
+    existing = state.get('rebindings', {}).get(identity)
+    if existing:
+        if (existing['old_thread'], existing['new_thread'], existing['handoff_sha256']) != (old, new, digest):
+            raise ValueError('migration ID already binds a different handoff')
+        if state['thread'] != new:
+            raise RuntimeError('migration is historical; current route differs')
+        return existing
+    if current_sha256 != args['expected_state_sha256']:
+        raise ValueError('inbox state changed; inspect and reconsider the handoff')
+    if state['thread'] != old:
+        raise ValueError('registered thread changed; inspect before rebinding')
+    if pending(state) or state.get('wake') is not None:
+        raise RuntimeError('drain pending results and retire the exact wake before rebinding')
+    if any(x['status'] != 'removed' for x in state.get('terminals', {}).values()):
+        raise RuntimeError('reconcile all registered terminals before rebinding')
+    receipt = {'migration_id': identity, 'old_thread': old, 'new_thread': new,
+               'handoff_sha256': digest, 'handoff': str(handoff_path.resolve()),
+               'evidence': evidence, 'at': now(),
+               'external_ownership': 'operator_attested_not_host_verified'}
+    state['thread'] = new
+    state.setdefault('rebindings', {})[identity] = receipt
+    return receipt
+
+
 def operate(mailbox, action, **args):
     """Apply coordinator transitions under the same lock as result publication."""
-    with locked(mailbox) as root:
+    brief = args.pop('brief', False)
+    with locked(mailbox, create=action != 'status') as root:
         state = load(root)
         if action == 'status':
-            return state
+            if not args.get('summary'):
+                return state
+            report = summarize(state, terminal_ids=args.get('terminal_id'))
+            report['state_sha256'] = hashlib.sha256((root / 'state.json').read_bytes()).hexdigest()
+            return report
+        if action == 'rebind':
+            current_sha256 = hashlib.sha256((root / 'state.json').read_bytes()).hexdigest()
+            receipt = rebind(state, args, current_sha256)
+            save_json(root / 'state.json', state)
+            return {'mode': state['mode'], 'thread': state['thread'], 'rebind': receipt,
+                    'state_sha256': hashlib.sha256((root / 'state.json').read_bytes()).hexdigest()}
         if action == 'take':
             activate(root, state)
             return {'mode': state['mode'], 'results': pending(state)}
@@ -255,6 +368,11 @@ def operate(mailbox, action, **args):
         else:
             raise ValueError('unknown inbox operation')
         save_json(root / 'state.json', state)
+        if brief:
+            return {'mode': state['mode'], 'pending': len(pending(state)),
+                    'state_sha256': hashlib.sha256((root / 'state.json').read_bytes()).hexdigest(),
+                    'registered_terminals': len(state['terminals']),
+                    'unreconciled_terminals': sum(x['status'] != 'removed' for x in state['terminals'].values())}
         return {'mode': state['mode'], 'pending': len(pending(state)), 'terminals': state['terminals']}
 
 
@@ -271,6 +389,12 @@ def main():
     init.add_argument('--remote')
     for action in ['status', 'take', 'wait', 'pause', 'resume', 'close']:
         sub.add_parser(action)
+    status_parser = sub.choices['status']
+    status_parser.add_argument('--summary', action='store_true', help='Read ledger/observer summary without activating or verifying artifacts')
+    status_parser.add_argument('--terminal-id', action='append', help='Also inspect this registered removed observer; use with --summary')
+    route = sub.add_parser('rebind', help='Rebind only at an explicitly attested drained boundary')
+    for name in ('expected-thread', 'new-thread', 'expected-state-sha256', 'handoff'):
+        route.add_argument('--' + name, required=True)
     ack = sub.add_parser('ack')
     for field in ['delivery-id', 'sha256', 'disposition']:
         ack.add_argument('--' + field, required=True)
@@ -283,7 +407,11 @@ def main():
     terminal.add_argument('--state-dir', required=True)
     reconcile = sub.add_parser('terminals-reconcile')
     reconcile.add_argument('--snapshot', required=True)
+    for name in ('ack', 'invalidate', 'terminal-add', 'terminals-reconcile'):
+        sub.choices[name].add_argument('--brief', action='store_true', help='Return counts and state hash instead of the full terminal ledger')
     args = vars(parser.parse_args())
+    if args.get('action') == 'status' and args.get('terminal_id') and not args.get('summary'):
+        parser.error('--terminal-id requires status --summary')
     action = args.pop('action')
     mailbox = args.pop('mailbox')
     try:
